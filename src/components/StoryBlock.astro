@@ -1,0 +1,76 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  variant: 'lead' | 'secondary' | 'brief' | 'more';
+}
+
+const { post, variant } = Astro.props;
+const category = post.data.tags.length > 0 ? post.data.tags[0] : null;
+const dateStr = post.data.publishDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const dateShort = post.data.publishDate.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<div class="story-block">
+  <div class="story-block__content">
+  {variant !== 'brief' && category && (
+    <p class="story-block__category">
+      <a href={`/tags/${category}`} class="story-link story-block__category-link">{category.replace(/-/g, ' ').toUpperCase()}</a>
+    </p>
+  )}
+  <time datetime={post.data.publishDate.toISOString()} class="story-block__date">
+    {variant === 'brief' || variant === 'more' ? dateShort : dateStr}
+  </time>
+  {variant === 'lead' && (
+    <h2 class="story-block__headline story-block__headline--lead">{post.data.title}</h2>
+  )}
+  {variant === 'lead' && post.data.description && (
+    <p class="story-block__deck">{post.data.description}</p>
+  )}
+  {variant === 'lead' && post.data.author && (
+    <p class="story-block__byline">By {post.data.author}</p>
+  )}
+  {variant === 'lead' && post.data.description && (
+    <p class="story-block__description">
+      <span class="story-block__drop-cap">{post.data.description.slice(0, 1)}</span>
+      {post.data.description.slice(1, 180)}
+      {post.data.description.length > 180 ? '…' : ''}
+    </p>
+  )}
+  {variant === 'secondary' && (
+    <h2 class="story-block__headline story-block__headline--secondary">{post.data.title}</h2>
+  )}
+  {variant === 'secondary' && post.data.description && (
+    <p class="story-block__description story-block__description--sm">{post.data.description}</p>
+  )}
+  {variant === 'brief' && (
+    <h2 class="story-block__headline story-block__headline--brief">{post.data.title}</h2>
+  )}
+  {variant === 'more' && (
+    <>
+      <h2 class="story-block__headline story-block__headline--more">{post.data.title}</h2>
+      {post.data.description && (
+        <p class="story-block__description story-block__description--sm">{post.data.description}</p>
+      )}
+    </>
+  )}
+  {variant === 'lead' && post.data.tags.length > 0 && (
+    <ul class="story-block__tags">
+      {post.data.tags.map((tag) => (
+        <li>{tag.replace(/-/g, ' ')}</li>
+      ))}
+    </ul>
+  )}
+  <span class="story-block__read" aria-hidden="true">READ →</span>
+  </div>
+  <a href={`/${post.slug}`} class="story-block__overlay story-link" aria-label={`Read article: ${post.data.title}`}></a>
+</div>

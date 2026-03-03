@@ -1,85 +1,99 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from '../components/PostCard.astro';
+import StoryBlock from '../components/StoryBlock.astro';
 import { getSortedPosts, getPaginationForPosts } from '../lib/blog';
 
 const allPosts = await getSortedPosts();
 const { getPagePosts, totalPages } = getPaginationForPosts(allPosts);
 const posts = getPagePosts(1);
-const heroPosts = posts.slice(0, 5);
-const belowPosts = posts.slice(5);
+const lead = posts[0];
+const secondary = [posts[1], posts[2]].filter(Boolean);
+const morePosts = posts.slice(3);
+const half = Math.ceil(morePosts.length / 2);
+const moreCol1 = morePosts.slice(0, half);
+const moreCol2 = morePosts.slice(half);
+
+const tickerItems = posts.slice(0, 5).map((p, i) => ({
+  label: ['LATEST', 'OPINION', 'FROM THE FIELD', 'OBSERVABILITY', 'READING LIST'][i] ?? 'LATEST',
+  headline: p.data.title,
+  href: `/${p.slug}`,
+}));
+
+const readingPaths = [
+  { slug: 'start-here', label: 'START HERE', title: 'Introduction to HAS Design', description: 'A short path through core concepts: what we mean by human-agent systems and how to think about boundaries.', meta: '3 articles · 8 min read' },
+  { slug: 'deep-dive', label: 'DEEP DIVE', title: 'Guardrails & Feedback Loops', description: 'A 3-part series on designing safe boundaries and approval flows for autonomous agents.', meta: '3 articles · 12 min read' },
+  { slug: 'the-stack', label: 'THE STACK', title: 'System Design from Bottom Up', description: 'From structured outputs to context and scaling — the technical stack of HAS.', meta: '4 articles · 15 min read' },
+];
 ---
 
-<BaseLayout title="Blog" description="Human-agent system design blog." fullWidth>
-  <article>
-    <header class="paper-masthead mb-6">
-      <p class="font-mono text-sm text-text-muted uppercase tracking-[0.12em] mb-2">Blog</p>
-      <h1 class="listing-title">Latest</h1>
-      <!-- Visible IA: what’s in this issue -->
-      {heroPosts.length > 0 && (
-        <nav class="paper-issue-index" aria-label="In this issue">
-          {heroPosts.map((post, i) => (
-            <a href={`/${post.slug}`} class={i === 0 ? 'text-accent font-medium' : ''}>
-              {i === 0 ? 'Lead' : (i === 1 || i === 2) ? 'Story' : 'Brief'}: {post.data.title}
-            </a>
-          ))}
-        </nav>
-      )}
-      <hr class="paper-masthead-rule" aria-hidden="true" />
-    </header>
+<BaseLayout title="HAS Design" description="Designing for Humans, Agents & Systems." fullWidth tickerItems={tickerItems}>
+  <article class="content-grid">
+    <!-- Lead (cols 1–4) -->
+    {lead && (
+      <div class="content-grid__col-1-4">
+        <StoryBlock post={lead} variant="lead" />
+      </div>
+    )}
 
-    <!-- Mobile: single column of all cards -->
-    <div class="listing-mobile">
-      <ol class="list-none p-0 m-0">
-        {posts.map((post) => (
-          <PostCard post={post} />
+    <!-- Secondaries (cols 5–6, stacked) -->
+    <div class="content-grid__col-5-6">
+      {secondary[0] && (
+        <>
+          <StoryBlock post={secondary[0]} variant="secondary" />
+          <hr class="content-rule content-rule--tight" />
+        </>
+      )}
+      {secondary[1] && <StoryBlock post={secondary[1]} variant="secondary" />}
+    </div>
+
+    <!-- Reading Paths strip (wayfinding — curated sequences, not article feed) -->
+    <section class="reading-paths" aria-label="Reading paths">
+      <p class="reading-paths__label">Reading paths</p>
+      <div class="reading-paths__grid">
+        {readingPaths.map((path) => (
+          <a href={`/reading/${path.slug}`} class="reading-path story-link">
+            <span class="reading-path__label">{path.label}</span>
+            <h2 class="reading-path__title">{path.title}</h2>
+            <p class="reading-path__description">{path.description}</p>
+            <p class="reading-path__meta">{path.meta}</p>
+            <span class="reading-path__begin" aria-hidden="true">BEGIN →</span>
+          </a>
         ))}
-      </ol>
-    </div>
+      </div>
+    </section>
 
-    <!-- Desktop: newspaper hierarchy — lead, 2 secondary, 2 briefs (fills viewport), then more -->
-    <div class="listing-desktop">
-      {heroPosts.length > 0 && (
-        <div class="home-hero-wrap">
-        <ul class="hero-grid list-none p-0 m-0">
-          {heroPosts[0] && (
-            <PostCard post={heroPosts[0]} variant="lead" gridClass="hero-grid__lead" />
-          )}
-          {heroPosts[1] && (
-            <PostCard post={heroPosts[1]} variant="secondary" gridClass="hero-grid__secondary" />
-          )}
-          {heroPosts[2] && (
-            <PostCard post={heroPosts[2]} variant="secondary" gridClass="hero-grid__secondary" />
-          )}
-          {heroPosts[3] && (
-            <PostCard post={heroPosts[3]} variant="brief" gridClass="hero-grid__brief" />
-          )}
-          {heroPosts[4] && (
-            <PostCard post={heroPosts[4]} variant="brief" gridClass="hero-grid__brief" />
-          )}
-        </ul>
+    <!-- More stories (2-column ruled) -->
+    <hr class="content-rule" />
+    <p class="more-stories-label">More stories</p>
+    {morePosts.length > 0 && (
+      <>
+        <div class="content-grid__col-1-4 more-stories__col more-stories__col--left">
+          {moreCol1.map((post) => (
+            <>
+              <StoryBlock post={post} variant="more" />
+              <hr class="content-rule" style="margin: var(--rhythm) 0;" />
+            </>
+          ))}
         </div>
-      )}
-      {belowPosts.length > 0 && (
-        <div>
-          <p class="paper-below-label" aria-hidden="true">More stories</p>
-          <ol class="list-none p-0 m-0 below-fold">
-            {belowPosts.map((post) => (
-              <PostCard post={post} animateIn />
-            ))}
-          </ol>
+        <div class="content-grid__col-5-6 more-stories__col">
+          {moreCol2.map((post) => (
+            <>
+              <StoryBlock post={post} variant="more" />
+              <hr class="content-rule" style="margin: var(--rhythm) 0;" />
+            </>
+          ))}
         </div>
-      )}
-    </div>
+      </>
+    )}
 
-    <nav class="mt-12 pt-8 border-t border-border flex items-center justify-between gap-4 font-mono text-sm text-text-muted uppercase tracking-wider" aria-label="Pagination">
-      <span />
-      <span>Page 1 of {totalPages}</span>
-      {totalPages > 1 ? (
-        <a href="/page/2" class="link">Next</a>
-      ) : (
-        <span />
-      )}
+    <!-- Pagination -->
+    <nav class="content-grid__full pagination" aria-label="Pagination">
+      <span class="pagination__text">
+        Page 1 of {totalPages}
+        {totalPages > 1 && (
+          <> · <a href="/page/2" class="link">Next</a></>
+        )}
+      </span>
     </nav>
   </article>
 </BaseLayout>
