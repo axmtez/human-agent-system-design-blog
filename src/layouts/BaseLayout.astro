@@ -1,144 +1,40 @@
 ---
 import '../styles/global.css';
-import { ViewTransitions } from 'astro:transitions';
-
-interface TickerItem {
-  label: string;
-  headline: string;
-  href: string;
-}
 
 interface Props {
   title: string;
   description?: string;
-  image?: string;
-  fullWidth?: boolean;
-  tickerItems?: TickerItem[];
 }
 
-const { title, description, image, fullWidth = false, tickerItems: tickerProp } = Astro.props;
+const { title, description = '' } = Astro.props;
 const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
-const pathname = Astro.url.pathname;
-const activeSection = pathname === '/' ? 'system-design' : pathname === '/tags' || pathname === '/tags/' ? 'reading-list' : pathname.startsWith('/tags/') ? pathname.replace(/^\/tags\/|\/$/g, '').split('/')[0] : '';
-const dateline = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-const datelineShort = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-const tickerItems: TickerItem[] = tickerProp ?? [
-  { label: 'LATEST', headline: 'Human-Agent System Design: An Introduction', href: '/sample-post' },
-  { label: 'OPINION', headline: 'Why Guardrails Matter More Than Autonomy', href: '/feedback-loops-guardrails' },
-  { label: 'FROM THE FIELD', headline: 'Implementing Approval Workflows', href: '/implementing-approval-workflows' },
-  { label: 'OBSERVABILITY', headline: 'Metrics and Observability', href: '/metrics-observability' },
-  { label: 'READING LIST', headline: 'Beyond the Demo', href: '/beyond-the-demo' },
-];
-const sections = [
-  { slug: 'system-design', label: 'SYSTEM DESIGN', href: '/' },
-  { slug: 'human-agent', label: 'HUMAN-AGENT', href: '/tags/human-agent' },
-  { slug: 'observability', label: 'OBSERVABILITY', href: '/tags/observability' },
-  { slug: 'opinion', label: 'OPINION', href: '/tags/opinion' },
-  { slug: 'field-notes', label: 'FIELD NOTES', href: '/tags/workflows' },
-  { slug: 'reading-list', label: 'READING LIST', href: '/tags' },
-];
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <ViewTransitions />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0a" />
-    <meta name="description" content={description ?? ''} />
+    <meta name="description" content={description} />
     <title>{title}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=IBM+Plex+Mono:wght@400;500&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description ?? ''} />
-    <meta property="og:type" content="website" />
-    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-    {image && <meta property="og:image" content={image} />}
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description ?? ''} />
-    {image && <meta name="twitter:image" content={image} />}
   </head>
-  <body class="bg-bg text-text" data-theme="brutalist-dark">
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    <header class="nameplate" role="banner">
-      <!-- Row 1: Nameplate -->
-      <div class="nameplate__row">
-        <span class="nameplate__ear nameplate__ear--left">
-          <a href="https://humanagentsystem.design">humanagentsystem.design</a>
-        </span>
-        <div class="nameplate__center">
-          <h1 class="nameplate__title">HAS DESIGN</h1>
-          <p class="nameplate__tagline">Designing for Humans, Agents & Systems</p>
-        </div>
-        <span class="nameplate__ear nameplate__ear--right">
-          <a href="/rss.xml" class="nameplate__subscribe">Subscribe</a>
-          <div class="nameplate__dateline">
-            <span class="nameplate__date">{datelineShort}</span>
-            <span class="nameplate__location">Digital · Vol. 1, No. 1</span>
-          </div>
-        </span>
-      </div>
-      <hr class="nameplate__rule--after-row" aria-hidden="true" />
-      <!-- Row 2: Skybox ticker (duplicate for seamless loop) -->
-      <div class="nameplate__ticker-viewport" aria-label="Editorial teasers">
-        <div class="nameplate__ticker-track">
-          {[...tickerItems, ...tickerItems].map((item, i) => (
-            <span class="nameplate__ticker-item">
-              {i > 0 && <span class="nameplate__ticker-sep" aria-hidden="true">·</span>}
-              <a href={item.href}>
-                <span class="nameplate__ticker-label">{item.label}:</span> {item.headline}
-              </a>
-            </span>
-          ))}
-        </div>
-      </div>
-      <hr class="nameplate__rule--after-row" aria-hidden="true" />
-      <!-- Row 3: Section nav -->
-      <nav class="nameplate__sections" aria-label="Sections">
-        {sections.map((section, i) => (
-          <span class="nameplate__section-item">
-            {i > 0 && <span class="nameplate__section-sep" aria-hidden="true" />}
-            <a
-              href={section.href}
-              class:list={['nameplate__section-link', activeSection === section.slug && 'nameplate__section-link--active']}
-            >
-              {section.label}
-            </a>
-          </span>
-        ))}
+  <body>
+    <header>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/tags">Tags</a>
       </nav>
-      <hr class="nameplate__rule" aria-hidden="true" />
     </header>
-    <main id="main-content" class={`flex-1 ${fullWidth ? 'main--no-gap py-0' : 'px-content py-[clamp(1.5rem,4vw,3rem)]'}`}>
-      <div class={fullWidth ? 'layout--full' : 'mx-auto max-w-content'}>
-        <slot />
-      </div>
+    <main>
+      <slot />
     </main>
-    <footer class="border-t border-border py-8">
-      <div class="mx-auto max-w-content px-content">
-        <p class="font-mono text-xs text-text-muted uppercase tracking-widest">Human–agent system design</p>
-      </div>
+    <footer>
+      <p>Human–agent system design</p>
     </footer>
-    <script>
-      if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (!e.isIntersecting) continue;
-              const link = e.target.querySelector('.card-link');
-              if (link) link.classList.add('animate-in');
-              observer.unobserve(e.target);
-            }
-          },
-          { rootMargin: '0px 0px -40px 0px', threshold: 0 }
-        );
-        document.querySelectorAll('[data-animate-in="true"]').forEach((el) => observer.observe(el));
-      }
-    </script>
   </body>
 </html>

@@ -6,20 +6,20 @@ export async function getStaticPaths() {
   const sequences: Record<string, { title: string; description: string; meta: string; postSlugs: string[] }> = {
     'start-here': {
       title: 'Introduction to HAS Design',
-      description: 'A short path through core concepts: what we mean by human-agent systems and how to think about boundaries.',
-      meta: '3 articles · 8 min read',
+      description: 'A short path through core concepts.',
+      meta: '3 articles',
       postSlugs: ['sample-post', 'defining-handoff-protocols', 'human-in-the-loop-patterns'],
     },
     'deep-dive': {
       title: 'Guardrails & Feedback Loops',
-      description: 'A 3-part series on designing safe boundaries and approval flows for autonomous agents.',
-      meta: '3 articles · 12 min read',
+      description: 'A 3-part series on designing safe boundaries.',
+      meta: '3 articles',
       postSlugs: ['feedback-loops-guardrails', 'implementing-approval-workflows', 'metrics-observability'],
     },
     'the-stack': {
       title: 'System Design from Bottom Up',
-      description: 'From structured outputs to context and scaling — the technical stack of HAS.',
-      meta: '4 articles · 15 min read',
+      description: 'The technical stack of HAS.',
+      meta: '4 articles',
       postSlugs: ['structured-outputs-and-schemas', 'context-windows-and-memory', 'scaling-agent-workflows', 'beyond-the-demo'],
     },
   };
@@ -31,106 +31,23 @@ export async function getStaticPaths() {
 
 const { title, description, meta, postSlugs } = Astro.props;
 const posts = await getCollection('blog');
-const ordered = postSlugs
-  .map((s) => posts.find((p) => p.slug === s))
-  .filter(Boolean);
+const ordered = postSlugs.map((s) => posts.find((p) => p.slug === s)).filter(Boolean);
 ---
 
 <BaseLayout title={title} description={description}>
-  <article class="reading-sequence">
-    <header class="reading-sequence__header">
-      <p class="reading-sequence__label">Reading path</p>
-      <h1 class="reading-sequence__title">{title}</h1>
-      <p class="reading-sequence__description">{description}</p>
-      <p class="reading-sequence__meta">{meta}</p>
+  <article>
+    <header>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <p>{meta}</p>
     </header>
-    <ol class="reading-sequence__list">
+    <ol>
       {ordered.map((post, i) => (
-        <li class="reading-sequence__item">
-          <span class="reading-sequence__num">{i + 1}</span>
-          <a href={`/${post.slug}`} class="reading-sequence__link">
-            {post.data.title}
-          </a>
+        <li>
+          <a href={`/${post.slug}`}>{post.data.title}</a>
         </li>
       ))}
     </ol>
-    <p class="reading-sequence__back">
-      <a href="/" class="link">← Back to front page</a>
-    </p>
+    <p><a href="/">Back to home</a></p>
   </article>
 </BaseLayout>
-
-<style>
-  .reading-sequence {
-    max-width: 42rem;
-    margin: 0 auto;
-  }
-  .reading-sequence__header {
-    margin-bottom: var(--rhythm-2);
-    padding-bottom: var(--rhythm-2);
-    border-bottom: 1px solid var(--color-rule);
-  }
-  .reading-sequence__label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    color: var(--color-accent);
-    text-transform: uppercase;
-    margin-bottom: var(--space-2);
-  }
-  .reading-sequence__title {
-    font-family: var(--font-serif);
-    font-size: clamp(1.75rem, 3vw, 2.25rem);
-    font-weight: 700;
-    color: var(--color-text);
-    margin: 0 0 var(--space-2);
-  }
-  .reading-sequence__description {
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--color-text-muted);
-    margin: 0 0 var(--space-2);
-  }
-  .reading-sequence__meta {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--color-text-date);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 0;
-  }
-  .reading-sequence__list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 var(--rhythm-2);
-  }
-  .reading-sequence__item {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-4);
-    padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--color-rule);
-  }
-  .reading-sequence__num {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--color-text-date);
-    min-width: 1.5rem;
-  }
-  .reading-sequence__link {
-    font-family: var(--font-sans);
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-text);
-    text-decoration: none;
-  }
-  .reading-sequence__link:hover {
-    color: var(--color-headline-hover);
-  }
-  .reading-sequence__back {
-    font-family: var(--font-mono);
-    font-size: 12px;
-  }
-</style>

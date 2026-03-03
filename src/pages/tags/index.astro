@@ -12,16 +12,13 @@ for (const post of posts) {
 const tags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 ---
 
-<BaseLayout title="Tags" description="Browse blog posts by tag.">
-  <article>
-    <h1 class="text-4xl sm:text-5xl font-bold text-text mb-12 tracking-tight">Tags</h1>
-    <ul class="list-none p-0 m-0 font-mono text-sm uppercase tracking-wide">
-      {tags.map(([tag, count]) => (
-        <li class="border-b border-border py-3 first:pt-0 last:border-0">
-          <a href={`/tags/${tag}`} class="text-text no-underline hover:text-accent">{tag}</a>
-          <span class="text-text-muted ml-2">({count})</span>
-        </li>
-      ))}
-    </ul>
-  </article>
+<BaseLayout title="Tags" description="Browse posts by tag.">
+  <h1>Tags</h1>
+  <ul>
+    {tags.map(([tag, count]) => (
+      <li>
+        <a href={`/tags/${tag}`}>{tag}</a> ({count})
+      </li>
+    ))}
+  </ul>
 </BaseLayout>

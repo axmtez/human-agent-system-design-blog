@@ -15,30 +15,23 @@ const { post } = Astro.props;
 const { Content } = await post.render();
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} image={post.data.image}>
-  <article class="prose-post editorial-article">
-    <header class="editorial-header">
-      <p class="editorial-eyebrow" aria-hidden="true">Article</p>
-      <time datetime={post.data.publishDate.toISOString()} class="editorial-meta">
-        {post.data.publishDate.toLocaleDateString('en-CA', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article>
+    <header>
+      <time datetime={post.data.publishDate.toISOString()}>
+        {post.data.publishDate.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
       </time>
-      <h1 class="editorial-title">{post.data.title}</h1>
-      {post.data.author && (
-        <p class="type-byline editorial-byline">By {post.data.author}</p>
-      )}
+      <h1>{post.data.title}</h1>
+      {post.data.author && <p>By {post.data.author}</p>}
       {post.data.tags.length > 0 && (
-        <ul class="editorial-tags" aria-label="Tags">
+        <ul>
           {post.data.tags.map((tag) => (
-            <li>{tag}</li>
+            <li><a href={`/tags/${tag}`}>{tag}</a></li>
           ))}
         </ul>
       )}
     </header>
-    <div class="editorial-body">
+    <div>
       <Content />
     </div>
   </article>

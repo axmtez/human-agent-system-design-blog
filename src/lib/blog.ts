@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content';
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 export async function getSortedPosts() {
   const posts = (await getCollection('blog'))
