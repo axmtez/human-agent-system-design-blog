@@ -102,6 +102,65 @@ function excerpt(text: string, maxLen = 80) {
       </main>
     </div>
     <script>
+      const STORAGE_KEY = 'has-design-read-articles';
+
+      function getReadArticles() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          return stored ? JSON.parse(stored) : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function markAsRead(slug) {
+        const read = getReadArticles();
+        if (!read.includes(slug)) {
+          read.push(slug);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(read));
+          updateSidebarReadStates();
+        }
+      }
+
+      function isRead(slug) {
+        return getReadArticles().includes(slug);
+      }
+
+      function updateSidebarReadStates() {
+        const read = getReadArticles();
+        document.querySelectorAll('.sidebar-article').forEach((el) => {
+          const slug = el.getAttribute('data-slug');
+          if (read.includes(slug)) {
+            el.classList.add('is-read');
+          } else {
+            el.classList.remove('is-read');
+          }
+        });
+      }
+
+      function observeArticleEnd() {
+        const sentinel = document.getElementById('article-end-sentinel');
+        if (!sentinel) return;
+
+        const slug = sentinel.getAttribute('data-slug');
+        if (!slug) return;
+        if (isRead(slug)) return;
+
+        const contentPanel = document.getElementById('content-panel');
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                markAsRead(slug);
+                observer.disconnect();
+              }
+            });
+          },
+          { root: contentPanel, threshold: 0.5 }
+        );
+        observer.observe(sentinel);
+      }
+
       function updateActiveArticle() {
         const path = window.location.pathname;
         const segments = path.split('/').filter(Boolean);
@@ -118,6 +177,8 @@ function excerpt(text: string, maxLen = 80) {
 
       document.addEventListener('astro:page-load', () => {
         updateActiveArticle();
+        updateSidebarReadStates();
+        observeArticleEnd();
 
         const contentPanel = document.getElementById('content-panel');
         const rules = document.querySelectorAll('hr.rule');
@@ -157,6 +218,8 @@ function excerpt(text: string, maxLen = 80) {
 
       document.addEventListener('astro:after-swap', () => {
         updateActiveArticle();
+        updateSidebarReadStates();
+        observeArticleEnd();
         const panel = document.getElementById('content-panel');
         if (panel) {
           panel.scrollTo({ top: 0, behavior: 'instant' });

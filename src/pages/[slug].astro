@@ -100,6 +100,7 @@ const showUpdated =
     <div class="procedure__body">
       <Content />
     </div>
+    <div id="article-end-sentinel" data-slug={post.slug} aria-hidden="true"></div>
 
     <!-- Handoff Block -->
     {hasHandoff && (
@@ -148,6 +149,16 @@ const showUpdated =
 </BlogLayout>
 
 <style>
+  #article-end-sentinel {
+    height: 1px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
   .procedure {
     max-width: 42rem;
     margin: 0 auto;
