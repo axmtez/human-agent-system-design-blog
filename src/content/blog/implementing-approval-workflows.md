@@ -1,13 +1,29 @@
 ---
 title: "Implementing Approval Workflows"
-description: A practical pattern for approval steps in human-agent pipelines.
-publishDate: 2025-02-20
-tags:
-  - workflows
-  - system-design
-  - collaboration
-draft: false
+description: "A practical pattern for approval steps in human-agent pipelines."
 author: "Sam Rivera"
+publishDate: 2025-02-20
+updatedDate: 2025-02-20
+
+# Series & sequencing
+series: "guardrails"
+seriesPart: 2
+seriesTotal: 3
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["feedback-loops-guardrails"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "metrics-observability"
+prevArticle: "feedback-loops-guardrails"
+
+# Metadata
+readingTime: 3
+tags: ["workflows", "system-design", "collaboration"]
+draft: false
 image: "https://placehold.co/1200x630/2563eb/fff?text=Approval+Workflows"
 ---
 

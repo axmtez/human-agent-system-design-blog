@@ -1,13 +1,29 @@
 ---
 title: "Multi-Agent Orchestration"
-description: Coordinating multiple agents and assigning roles so the system behaves predictably.
-publishDate: 2025-02-10
-tags:
-  - system-design
-  - human-agent
-  - workflows
-draft: false
+description: "Coordinating multiple agents and assigning roles so the system behaves predictably."
 author: "Casey Kim"
+publishDate: 2025-02-10
+updatedDate: 2025-02-10
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "advanced"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["system-design", "human-agent", "workflows"]
+draft: false
 ---
 
 # Multi-Agent Orchestration

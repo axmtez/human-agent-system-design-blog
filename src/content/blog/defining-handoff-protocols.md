@@ -1,11 +1,28 @@
 ---
 title: "Defining Handoff Protocols"
-description: Clear handoff points between humans and agents reduce confusion and rework.
+description: "Clear handoff points between humans and agents reduce confusion and rework."
+author: "Chad Bercea"
 publishDate: 2025-02-21
-tags:
-  - human-agent
-  - collaboration
-  - workflows
+updatedDate: 2025-02-21
+
+# Series & sequencing
+series: "foundations"
+seriesPart: 2
+seriesTotal: 3
+
+# Altitude (conceptual level)
+altitude: "foundations"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["sample-post"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "human-in-the-loop-patterns"
+prevArticle: "sample-post"
+
+# Metadata
+readingTime: 3
+tags: ["human-agent", "collaboration", "workflows"]
 draft: false
 ---
 

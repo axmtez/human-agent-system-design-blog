@@ -1,11 +1,28 @@
 ---
 title: "Beyond the Demo"
 description: "Taking agent features from prototype to production: reliability, observability, and iteration."
+author: "Chad Bercea"
 publishDate: 2025-01-15
-tags:
-  - system-design
-  - observability
-  - workflows
+updatedDate: 2025-01-15
+
+# Series & sequencing
+series: "the-stack"
+seriesPart: 4
+seriesTotal: 4
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["structured-outputs-and-schemas", "context-windows-and-memory", "scaling-agent-workflows"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: "scaling-agent-workflows"
+
+# Metadata
+readingTime: 3
+tags: ["system-design", "observability", "workflows"]
 draft: false
 ---
 

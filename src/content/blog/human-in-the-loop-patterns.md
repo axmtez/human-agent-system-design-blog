@@ -1,11 +1,28 @@
 ---
 title: "Human-in-the-Loop Patterns"
-description: When to ask for approval, when to notify, and when to let the agent run autonomously.
+description: "When to ask for approval, when to notify, and when to let the agent run autonomously."
+author: "Chad Bercea"
 publishDate: 2025-02-12
-tags:
-  - human-agent
-  - collaboration
-  - workflows
+updatedDate: 2025-02-12
+
+# Series & sequencing
+series: "foundations"
+seriesPart: 3
+seriesTotal: 3
+
+# Altitude (conceptual level)
+altitude: "foundations"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["sample-post", "defining-handoff-protocols"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: "defining-handoff-protocols"
+
+# Metadata
+readingTime: 2
+tags: ["human-agent", "collaboration", "workflows"]
 draft: false
 ---
 

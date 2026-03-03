@@ -1,13 +1,29 @@
 ---
 title: "Structured Outputs and Schemas"
-description: Getting agents to return JSON or other structured data that your app can rely on.
-publishDate: 2025-02-02
-tags:
-  - system-design
-  - workflows
-  - design
-draft: false
+description: "Getting agents to return JSON or other structured data that your app can rely on."
 author: "Morgan Tate"
+publishDate: 2025-02-02
+updatedDate: 2025-02-02
+
+# Series & sequencing
+series: "the-stack"
+seriesPart: 1
+seriesTotal: 4
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "context-windows-and-memory"
+prevArticle: null
+
+# Metadata
+readingTime: 2
+tags: ["system-design", "workflows", "design"]
+draft: false
 ---
 
 # Structured Outputs and Schemas

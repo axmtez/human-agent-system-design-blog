@@ -1,11 +1,28 @@
 ---
 title: "Testing Agent Behaviors"
 description: "How to test non-deterministic systems: golden runs, regression sets, and human review."
+author: "Chad Bercea"
 publishDate: 2025-01-12
-tags:
-  - system-design
-  - workflows
-  - design
+updatedDate: 2025-01-12
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["system-design", "workflows", "design"]
 draft: false
 ---
 

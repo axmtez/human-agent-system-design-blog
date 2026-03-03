@@ -1,13 +1,29 @@
 ---
 title: "Error Messages Humans Can Use"
-description: Agent and system errors should point the user to a clear next step, not a stack trace.
-publishDate: 2025-01-25
-tags:
-  - ux
-  - human-agent
-  - design
-draft: false
+description: "Agent and system errors should point the user to a clear next step, not a stack trace."
 author: "Riley Park"
+publishDate: 2025-01-25
+updatedDate: 2025-01-25
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 2
+tags: ["ux", "human-agent", "design"]
+draft: false
 ---
 
 # Error Messages Humans Can Use

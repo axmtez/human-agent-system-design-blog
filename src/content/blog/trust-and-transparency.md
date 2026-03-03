@@ -1,11 +1,28 @@
 ---
 title: "Trust and Transparency"
-description: Helping users understand what the agent did and why, so they can trust and correct it.
+description: "Helping users understand what the agent did and why, so they can trust and correct it."
+author: "Chad Bercea"
 publishDate: 2025-01-20
-tags:
-  - human-agent
-  - ux
-  - design
+updatedDate: 2025-01-20
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "opinion"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["human-agent", "ux", "design"]
 draft: false
 ---
 

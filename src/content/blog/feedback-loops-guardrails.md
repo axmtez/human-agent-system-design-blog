@@ -1,11 +1,28 @@
 ---
 title: "Feedback Loops and Guardrails"
-description: How to design feedback mechanisms and guardrails so human-agent systems stay safe and aligned.
+description: "How to design feedback mechanisms and guardrails so human-agent systems stay safe and aligned."
+author: "Chad Bercea"
 publishDate: 2025-02-22
-tags:
-  - system-design
-  - human-agent
-  - guardrails
+updatedDate: 2025-02-22
+
+# Series & sequencing
+series: "guardrails"
+seriesPart: 1
+seriesTotal: 3
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "implementing-approval-workflows"
+prevArticle: null
+
+# Metadata
+readingTime: 2
+tags: ["system-design", "human-agent", "guardrails"]
 draft: false
 ---
 

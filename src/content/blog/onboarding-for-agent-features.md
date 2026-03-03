@@ -1,13 +1,29 @@
 ---
 title: "Onboarding for Agent Features"
-description: Introducing users to agent-driven flows without overwhelming them or promising too much.
-publishDate: 2025-01-18
-tags:
-  - ux
-  - human-agent
-  - design
-draft: false
+description: "Introducing users to agent-driven flows without overwhelming them or promising too much."
 author: "Alex Chen"
+publishDate: 2025-01-18
+updatedDate: 2025-01-18
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["ux", "human-agent", "design"]
+draft: false
 ---
 
 # Onboarding for Agent Features

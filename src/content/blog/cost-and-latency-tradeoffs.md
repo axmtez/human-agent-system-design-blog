@@ -1,10 +1,28 @@
 ---
 title: "Cost and Latency Tradeoffs"
-description: Balancing token cost, response time, and quality when designing agent-backed features.
+description: "Balancing token cost, response time, and quality when designing agent-backed features."
+author: "Chad Bercea"
 publishDate: 2025-02-05
-tags:
-  - system-design
-  - observability
+updatedDate: 2025-02-05
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "advanced"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 2
+tags: ["system-design", "observability"]
 draft: false
 ---
 

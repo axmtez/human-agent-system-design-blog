@@ -1,11 +1,28 @@
 ---
 title: "Metrics and Observability"
-description: What to measure and expose when humans and agents work together.
+description: "What to measure and expose when humans and agents work together."
+author: "Chad Bercea"
 publishDate: 2025-02-19
-tags:
-  - observability
-  - system-design
-  - workflows
+updatedDate: 2025-02-19
+
+# Series & sequencing
+series: "guardrails"
+seriesPart: 3
+seriesTotal: 3
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["feedback-loops-guardrails", "implementing-approval-workflows"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: "implementing-approval-workflows"
+
+# Metadata
+readingTime: 3
+tags: ["observability", "system-design", "workflows"]
 draft: false
 ---
 

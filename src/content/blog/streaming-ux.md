@@ -1,11 +1,28 @@
 ---
 title: "Streaming UX"
-description: Designing interfaces for streaming agent output so users feel progress and can act early.
+description: "Designing interfaces for streaming agent output so users feel progress and can act early."
+author: "Chad Bercea"
 publishDate: 2025-01-30
-tags:
-  - ux
-  - human-agent
-  - design
+updatedDate: 2025-01-30
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 2
+tags: ["ux", "human-agent", "design"]
 draft: false
 ---
 

@@ -1,11 +1,28 @@
 ---
 title: "Scaling Agent Workflows"
 description: "From one-off tasks to high-throughput pipelines: design choices that scale."
+author: "Chad Bercea"
 publishDate: 2025-01-22
-tags:
-  - system-design
-  - workflows
-  - observability
+updatedDate: 2025-01-22
+
+# Series & sequencing
+series: "the-stack"
+seriesPart: 3
+seriesTotal: 4
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["structured-outputs-and-schemas", "context-windows-and-memory"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "beyond-the-demo"
+prevArticle: "context-windows-and-memory"
+
+# Metadata
+readingTime: 2
+tags: ["system-design", "workflows", "observability"]
 draft: false
 ---
 

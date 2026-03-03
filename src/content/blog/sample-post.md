@@ -1,13 +1,29 @@
 ---
 title: "Human-Agent System Design: An Introduction"
-description: A brief overview of designing systems where humans and AI agents collaborate effectively.
+description: "A brief overview of designing systems where humans and AI agents collaborate effectively."
+author: "Chad Bercea"
 publishDate: 2025-02-23
-tags:
-  - system-design
-  - human-agent
-  - collaboration
+updatedDate: 2025-02-23
+
+# Series & sequencing
+series: "foundations"
+seriesPart: 1
+seriesTotal: 3
+
+# Altitude (conceptual level)
+altitude: "foundations"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "defining-handoff-protocols"
+prevArticle: null
+
+# Metadata
+readingTime: 2
+tags: ["system-design", "human-agent", "collaboration"]
 draft: false
-author: "Alex Chen"
 image: "https://placehold.co/1200x630/1a1a1a/fff?text=Human-Agent+Design"
 ---
 

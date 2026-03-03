@@ -1,16 +1,28 @@
 ---
 title: "Placeholder: Future Topics"
-description: A short placeholder post with many tags to stress-test the tag UI and listing.
+description: "A short placeholder post with many tags to stress-test the tag UI and listing."
+author: "Chad Bercea"
 publishDate: 2025-02-18
-tags:
-  - system-design
-  - human-agent
-  - collaboration
-  - workflows
-  - observability
-  - guardrails
-  - design
-  - ux
+updatedDate: 2025-02-18
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 1
+tags: ["system-design", "human-agent", "collaboration", "workflows", "observability", "guardrails", "design", "ux"]
 draft: false
 ---
 

@@ -1,11 +1,28 @@
 ---
 title: "Context Windows and Memory"
-description: How to work within limited context and when to persist state across sessions.
+description: "How to work within limited context and when to persist state across sessions."
+author: "Chad Bercea"
 publishDate: 2025-02-18
-tags:
-  - system-design
-  - human-agent
-  - workflows
+updatedDate: 2025-02-18
+
+# Series & sequencing
+series: "the-stack"
+seriesPart: 2
+seriesTotal: 4
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: ["structured-outputs-and-schemas"]
+
+# Handoff — the slug of the next article in sequence
+nextArticle: "scaling-agent-workflows"
+prevArticle: "structured-outputs-and-schemas"
+
+# Metadata
+readingTime: 2
+tags: ["system-design", "human-agent", "workflows"]
 draft: false
 ---
 

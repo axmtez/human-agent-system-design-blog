@@ -1,13 +1,29 @@
 ---
 title: "Designing for Failure Modes"
-description: When human-agent systems break, clear failure modes keep users in control and reduce confusion.
-publishDate: 2025-02-20
-tags:
-  - system-design
-  - human-agent
-  - guardrails
-draft: false
+description: "When human-agent systems break, clear failure modes keep users in control and reduce confusion."
 author: "Sam Rivera"
+publishDate: 2025-02-20
+updatedDate: 2025-02-20
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "patterns"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["system-design", "human-agent", "guardrails"]
+draft: false
 ---
 
 # Designing for Failure Modes

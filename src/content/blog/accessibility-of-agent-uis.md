@@ -1,11 +1,28 @@
 ---
 title: "Accessibility of Agent UIs"
-description: Making agent-driven interfaces usable for keyboard, screen readers, and reduced motion.
+description: "Making agent-driven interfaces usable for keyboard, screen readers, and reduced motion."
+author: "Chad Bercea"
 publishDate: 2025-02-08
-tags:
-  - ux
-  - human-agent
-  - design
+updatedDate: 2025-02-08
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["ux", "human-agent", "design"]
 draft: false
 ---
 

@@ -1,11 +1,28 @@
 ---
 title: "Audit Logs and Compliance"
-description: What to log when humans and agents collaborate, and how to retain and query it.
+description: "What to log when humans and agents collaborate, and how to retain and query it."
+author: "Chad Bercea"
 publishDate: 2025-01-28
-tags:
-  - system-design
-  - observability
-  - guardrails
+updatedDate: 2025-01-28
+
+# Series & sequencing
+series: null
+seriesPart: null
+seriesTotal: null
+
+# Altitude (conceptual level)
+altitude: "field-notes"
+
+# Prerequisites — slugs of articles that should be read before this one
+prerequisites: []
+
+# Handoff — the slug of the next article in sequence
+nextArticle: null
+prevArticle: null
+
+# Metadata
+readingTime: 3
+tags: ["system-design", "observability", "guardrails"]
 draft: false
 ---
 
