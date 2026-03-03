@@ -1,27 +1,374 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getSortedPosts, getPaginationForPosts } from '../lib/blog';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 
-const allPosts = await getSortedPosts();
-const { getPagePosts, totalPages } = getPaginationForPosts(allPosts);
-const posts = getPagePosts(1);
+const allPosts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft);
+
+type Post = CollectionEntry<'blog'>;
+
+const BAND_ALTITUDES = ['advanced', 'patterns', 'foundations'] as const;
+const TRAFFIC_ALTITUDES = ['field-notes', 'opinion'] as const;
+
+const SERIES_DISPLAY: Record<string, string> = {
+  foundations: 'Foundations: Building the HAS Framework',
+  guardrails: 'Guardrails: Safety and Alignment',
+  'the-stack': 'The Stack: System Design from Bottom Up',
+};
+
+function getActiveSeries(posts: Post[]): {
+  series: string;
+  displayName: string;
+  firstArticle: Post;
+  partCount: number;
+  totalMinutes: number;
+} | null {
+  const bySeries = new Map<string, Post[]>();
+  for (const p of posts) {
+    if (p.data.series) {
+      const list = bySeries.get(p.data.series) ?? [];
+      list.push(p);
+      bySeries.set(p.data.series, list);
+    }
+  }
+  if (bySeries.size === 0) return null;
+
+  let activeSeries: string | null = null;
+  let latestDate = 0;
+
+  for (const [series, seriesPosts] of bySeries) {
+    const maxDate = Math.max(...seriesPosts.map((p) => p.data.publishDate.valueOf()));
+    if (maxDate > latestDate) {
+      latestDate = maxDate;
+      activeSeries = series;
+    }
+  }
+
+  if (!activeSeries) return null;
+
+  const seriesPosts = bySeries.get(activeSeries)!;
+  const sorted = [...seriesPosts].sort(
+    (a, b) => (a.data.seriesPart ?? 0) - (b.data.seriesPart ?? 0)
+  );
+  const firstArticle = sorted[0];
+  const partCount = firstArticle.data.seriesTotal ?? seriesPosts.length;
+  const totalMinutes = seriesPosts.reduce((sum, p) => sum + p.data.readingTime, 0);
+  const displayName = SERIES_DISPLAY[activeSeries] ?? activeSeries;
+
+  return {
+    series: activeSeries,
+    displayName,
+    firstArticle,
+    partCount,
+    totalMinutes,
+  };
+}
+
+function groupByAltitude(posts: Post[]) {
+  const bands: Record<string, Post[]> = {
+    advanced: [],
+    patterns: [],
+    foundations: [],
+  };
+  const traffic: Post[] = [];
+
+  for (const p of posts) {
+    const alt = p.data.altitude;
+    if (BAND_ALTITUDES.includes(alt as (typeof BAND_ALTITUDES)[number])) {
+      bands[alt].push(p);
+    } else if (TRAFFIC_ALTITUDES.includes(alt as (typeof TRAFFIC_ALTITUDES)[number])) {
+      traffic.push(p);
+    }
+  }
+
+  for (const alt of BAND_ALTITUDES) {
+    bands[alt].sort((a, b) => {
+      const ap = a.data.seriesPart ?? 0;
+      const bp = b.data.seriesPart ?? 0;
+      if (ap !== bp) return ap - bp;
+      return b.data.publishDate.valueOf() - a.data.publishDate.valueOf();
+    });
+  }
+
+  traffic.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+
+  return { bands, traffic };
+}
+
+const activeSeries = getActiveSeries(allPosts);
+const { bands, traffic } = groupByAltitude(allPosts);
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function seriesLabel(post: Post): string | null {
+  const { series, seriesPart, seriesTotal } = post.data;
+  if (!series || seriesPart == null || seriesTotal == null) return null;
+  const name = series.toUpperCase().replace(/-/g, ' ');
+  return `${name} · PART ${seriesPart} OF ${seriesTotal}`;
+}
 ---
 
-<BaseLayout title="Blog" description="Human–agent system design blog.">
-  <h1>Blog</h1>
-  <ul>
-    {posts.map((post) => (
-      <li>
-        <a href={`/${post.slug}`}>{post.data.title}</a>
-        <time datetime={post.data.publishDate.toISOString()}>
-          {post.data.publishDate.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
-        </time>
-      </li>
-    ))}
-  </ul>
-  {totalPages > 1 && (
-    <p>
-      <a href="/page/2">Next page</a> · Page 1 of {totalPages}
-    </p>
-  )}
+<BaseLayout title="The Scope" description="Human–agent system design blog — content by altitude.">
+  <article class="scope">
+    <!-- Section 1: Active Series Banner -->
+    {activeSeries && (
+      <section class="scope__banner">
+        <p class="scope__banner-label">NOW PUBLISHING</p>
+        <h2 class="scope__banner-title">{activeSeries.displayName}</h2>
+        <p class="scope__banner-meta">
+          {activeSeries.partCount} PARTS · {activeSeries.totalMinutes} MIN TOTAL · <a href={`/${activeSeries.firstArticle.slug}`} class="vector">START WITH PART 1</a>
+        </p>
+        <hr class="rule" />
+      </section>
+    )}
+
+    <!-- Section 2: Altitude Bands -->
+    {BAND_ALTITUDES.map((altitude) => {
+      const articles = bands[altitude];
+      if (articles.length === 0) return null;
+
+      const label = altitude.toUpperCase().replace(/-/g, ' ');
+      const half = Math.ceil(articles.length / 2);
+      const leftCol = articles.slice(0, half);
+      const rightCol = articles.slice(half);
+      return (
+        <section class="scope__band">
+          <h3 class="scope__band-label">{label}</h3>
+          <div class="altitude-grid">
+            <div class="altitude-grid__col">
+              {leftCol.map((post, i) => (
+                <>
+                  {i > 0 && <hr class="rule" />}
+                  <a href={`/${post.slug}`} class="scope__article content-link">
+                    {seriesLabel(post) && (
+                      <p class="scope__article-series">{seriesLabel(post)}</p>
+                    )}
+                    <h4 class="scope__article-title">{post.data.title}</h4>
+                    <p class="scope__article-desc">{post.data.description}</p>
+                    <p class="scope__article-meta">
+                      {post.data.readingTime} MIN · {formatDate(post.data.publishDate)}
+                    </p>
+                    <span class="scope__article-read">READ →</span>
+                  </a>
+                </>
+              ))}
+            </div>
+            <div class="altitude-grid__rule column-rule" aria-hidden="true" />
+            <div class="altitude-grid__col">
+              {rightCol.map((post, i) => (
+                <>
+                  {i > 0 && <hr class="rule" />}
+                  <a href={`/${post.slug}`} class="scope__article content-link">
+                    {seriesLabel(post) && (
+                      <p class="scope__article-series">{seriesLabel(post)}</p>
+                    )}
+                    <h4 class="scope__article-title">{post.data.title}</h4>
+                    <p class="scope__article-desc">{post.data.description}</p>
+                    <p class="scope__article-meta">
+                      {post.data.readingTime} MIN · {formatDate(post.data.publishDate)}
+                    </p>
+                    <span class="scope__article-read">READ →</span>
+                  </a>
+                </>
+              ))}
+            </div>
+          </div>
+          <hr class="rule scope__band-rule" />
+        </section>
+      );
+    })}
+
+    <!-- Section 3: Transient Traffic -->
+    {traffic.length > 0 && (
+      <section class="scope__traffic">
+        <h3 class="scope__band-label">TRAFFIC</h3>
+        <div class="scope__traffic-list">
+          {traffic.map((post, i) => (
+            <>
+              {i > 0 && <hr class="rule" />}
+              <a href={`/${post.slug}`} class="scope__traffic-item content-link">
+                <h4 class="scope__traffic-title">{post.data.title}</h4>
+                <p class="scope__traffic-meta">
+                  {formatDate(post.data.publishDate)} · {post.data.description}
+                </p>
+                <span class="scope__article-read">READ →</span>
+              </a>
+            </>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
 </BaseLayout>
+
+<style>
+  .scope {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .scope__banner {
+    margin-bottom: var(--space-lg);
+  }
+
+  .scope__banner-label {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-vector);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-xs);
+  }
+
+  .scope__banner-title {
+    font-family: var(--font-editorial);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .scope__banner-meta {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-lg);
+  }
+
+  .scope__band {
+    margin: 0;
+  }
+
+  .scope__band-label {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: var(--space-lg) 0 var(--space-md);
+  }
+
+  .altitude-grid {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0 var(--space-lg);
+  }
+
+  .altitude-grid__rule.column-rule {
+    background-color: var(--color-rule-active);
+  }
+
+  .altitude-grid__col {
+    min-width: 0;
+  }
+
+  .scope__band-rule {
+    margin: var(--space-xl) 0;
+  }
+
+  .scope__article,
+  .scope__traffic-item {
+    display: block;
+    padding: var(--space-md) 0;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .scope__article:visited,
+  .scope__traffic-item:visited {
+    color: inherit;
+  }
+
+  .scope__article-series {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .scope__article-title {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-xl);
+    color: var(--color-text);
+    margin: 0 0 var(--space-xs);
+    transition: color 200ms ease-out;
+  }
+
+  .scope__article:hover .scope__article-title,
+  .scope__traffic-item:hover .scope__traffic-title {
+    color: var(--color-hover-warm);
+  }
+
+  .scope__article-desc {
+    font-family: var(--font-human);
+    font-weight: 400;
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .scope__article-meta {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    margin: 0;
+  }
+
+  .scope__article-read {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-vector);
+    position: absolute;
+    right: 0;
+    top: var(--space-md);
+    opacity: 0;
+    transform: translateX(8px);
+    transition: opacity 150ms ease-out, transform 150ms ease-out;
+  }
+
+  .scope__article:hover .scope__article-read,
+  .scope__traffic-item:hover .scope__article-read {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .scope__traffic {
+    margin-top: var(--space-lg);
+  }
+
+  .scope__traffic-list {
+    margin-top: var(--space-md);
+  }
+
+  .scope__traffic-title {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-xl);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-xs);
+    transition: color 200ms ease-out;
+  }
+
+  .scope__traffic-meta {
+    font-family: var(--font-human);
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .scope__traffic-item .scope__article-read {
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+  }
+
+  .scope__traffic-item:hover .scope__article-read {
+    transform: translateY(-50%) translateX(0);
+  }
+</style>
