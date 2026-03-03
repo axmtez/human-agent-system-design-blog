@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogLayout from '../../layouts/BlogLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -34,7 +34,7 @@ const posts = await getCollection('blog');
 const ordered = postSlugs.map((s) => posts.find((p) => p.slug === s)).filter(Boolean);
 ---
 
-<BaseLayout title={title} description={description}>
+<BlogLayout title={title} description={description}>
   <article>
     <header>
       <h1>{title}</h1>
@@ -50,4 +50,4 @@ const ordered = postSlugs.map((s) => posts.find((p) => p.slug === s)).filter(Boo
     </ol>
     <p><a href="/">Back to home</a></p>
   </article>
-</BaseLayout>
+</BlogLayout>

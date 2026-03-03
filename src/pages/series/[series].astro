@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogLayout from '../../layouts/BlogLayout.astro';
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
@@ -65,7 +65,7 @@ function partNum(n: number) {
 }
 ---
 
-<BaseLayout title={title} description={description}>
+<BlogLayout title={title} description={description}>
   <article class="sector">
     <header class="sector__header animate-in">
       <p class="sector__label">SECTOR</p>
@@ -104,7 +104,7 @@ function partNum(n: number) {
       </>
     )}
   </article>
-</BaseLayout>
+</BlogLayout>
 
 <style>
   .sector {

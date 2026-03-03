@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogLayout from '../layouts/BlogLayout.astro';
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
@@ -49,7 +49,7 @@ const showUpdated =
   post.data.updatedDate.valueOf() !== post.data.publishDate.valueOf();
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BlogLayout title={post.data.title} description={post.data.description}>
   <div class="reading-progress" aria-hidden="true"></div>
   <article class="procedure">
     <!-- Squawk Bar -->
@@ -145,7 +145,7 @@ const showUpdated =
       </>
     )}
   </article>
-</BaseLayout>
+</BlogLayout>
 
 <style>
   .procedure {
@@ -418,13 +418,25 @@ const showUpdated =
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const progressBar = document.querySelector('.reading-progress');
+    const contentPanel = document.getElementById('content-panel');
     if (progressBar) {
       const updateProgress = () => {
-        const scrollHeight = document.body.scrollHeight - window.innerHeight;
-        const progress = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
-        (progressBar as HTMLElement).style.width = Math.min(progress, 100) + '%';
+        if (contentPanel) {
+          const { scrollTop, scrollHeight, clientHeight } = contentPanel;
+          const scrollHeightTotal = scrollHeight - clientHeight;
+          const progress = scrollHeightTotal > 0 ? (scrollTop / scrollHeightTotal) * 100 : 0;
+          (progressBar as HTMLElement).style.width = Math.min(progress, 100) + '%';
+        } else {
+          const scrollHeight = document.body.scrollHeight - window.innerHeight;
+          const progress = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
+          (progressBar as HTMLElement).style.width = Math.min(progress, 100) + '%';
+        }
       };
-      window.addEventListener('scroll', updateProgress, { passive: true });
+      if (contentPanel) {
+        contentPanel.addEventListener('scroll', updateProgress, { passive: true });
+      } else {
+        window.addEventListener('scroll', updateProgress, { passive: true });
+      }
       updateProgress();
     }
   });

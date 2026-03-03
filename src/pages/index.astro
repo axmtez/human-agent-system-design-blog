@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogLayout from '../layouts/BlogLayout.astro';
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
@@ -111,7 +111,7 @@ function seriesLabel(post: Post): string | null {
 }
 ---
 
-<BaseLayout title="The Scope" description="Human–agent system design blog — content by altitude.">
+<BlogLayout title="The Scope" description="Human–agent system design blog — content by altitude.">
   <article class="scope">
     <!-- Section 1: Active Series Banner -->
     {activeSeries && (
@@ -202,7 +202,7 @@ function seriesLabel(post: Post): string | null {
       </section>
     )}
   </article>
-</BaseLayout>
+</BlogLayout>
 
 <style>
   .scope {

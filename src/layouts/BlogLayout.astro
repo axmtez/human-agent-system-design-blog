@@ -1,0 +1,150 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=IBM+Plex+Mono:wght@400;500;700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+  </head>
+  <body class="blog-layout">
+    <div class="blog-shell">
+      <aside class="sidebar" aria-label="Blog navigation">
+        <!-- Sidebar content goes here in Phase 2 -->
+        <p class="sidebar__placeholder">Sidebar placeholder</p>
+      </aside>
+      <main class="content-panel" id="content-panel">
+        <slot />
+        <footer class="blog-footer">
+          <p>
+            Human–agent system design
+            · <a href="/demo" class="vector">Design demo</a>
+          </p>
+        </footer>
+      </main>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const rules = document.querySelectorAll('hr.rule');
+        const ruleObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                ruleObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1, root: document.getElementById('content-panel') }
+        );
+        rules.forEach((rule) => ruleObserver.observe(rule));
+
+        const animateEls = document.querySelectorAll('.animate-in');
+        const animateObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                animateObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1, root: document.getElementById('content-panel') }
+        );
+        animateEls.forEach((el) => animateObserver.observe(el));
+
+        document.querySelectorAll('.altitude-band, .sector-list').forEach((container) => {
+          container.querySelectorAll('.animate-in').forEach((el, i) => {
+            (el as HTMLElement).style.transitionDelay = `${i * 100}ms`;
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .blog-shell {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    width: 20%;
+    min-width: 260px;
+    max-width: 320px;
+    height: 100vh;
+    flex-shrink: 0;
+    overflow-y: auto;
+    background-color: var(--color-bg);
+    border-right: 1px solid var(--color-rule);
+    padding: var(--space-lg) var(--space-md);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar__placeholder {
+    color: var(--color-text-dim);
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .content-panel {
+    flex: 1;
+    min-width: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background-color: var(--color-bg);
+    padding: var(--space-xl) var(--space-xl);
+  }
+
+  .blog-footer {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .blog-footer p {
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .blog-shell {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      max-width: none;
+      height: auto;
+      min-height: auto;
+      flex-shrink: 0;
+      border-right: none;
+      border-bottom: 1px solid var(--color-rule);
+    }
+    .content-panel {
+      width: 100%;
+      height: auto;
+      flex: 1;
+      min-height: 0;
+    }
+  }
+</style>

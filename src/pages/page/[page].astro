@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogLayout from '../../layouts/BlogLayout.astro';
 import { getSortedPosts, getPaginationForPosts } from '../../lib/blog';
 import type { GetStaticPaths } from 'astro';
 
@@ -22,7 +22,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 const { currentPage, totalPages, posts } = Astro.props;
 ---
 
-<BaseLayout title={`Blog — Page ${currentPage}`} description="Human–agent system design blog.">
+<BlogLayout title={`Blog — Page ${currentPage}`} description="Human–agent system design blog.">
   <h1>Blog</h1>
   <ul>
     {posts.map((post) => (
@@ -43,4 +43,4 @@ const { currentPage, totalPages, posts } = Astro.props;
       <a href={`/page/${currentPage + 1}`}>Next</a>
     )}
   </nav>
-</BaseLayout>
+</BlogLayout>

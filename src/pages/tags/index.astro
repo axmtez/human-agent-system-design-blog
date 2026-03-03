@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogLayout from '../../layouts/BlogLayout.astro';
 import { getSortedPosts } from '../../lib/blog';
 
 const posts = await getSortedPosts();
@@ -12,7 +12,7 @@ for (const post of posts) {
 const tags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 ---
 
-<BaseLayout title="Tags" description="Browse posts by tag.">
+<BlogLayout title="Tags" description="Browse posts by tag.">
   <h1>Tags</h1>
   <ul>
     {tags.map(([tag, count]) => (
@@ -21,4 +21,4 @@ const tags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b
       </li>
     ))}
   </ul>
-</BaseLayout>
+</BlogLayout>
