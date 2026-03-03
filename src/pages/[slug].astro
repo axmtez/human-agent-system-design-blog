@@ -51,9 +51,9 @@ const showUpdated =
 
 <BlogLayout title={post.data.title} description={post.data.description}>
   <div class="reading-progress" aria-hidden="true"></div>
-  <article class="procedure">
+  <article>
     <!-- Squawk Bar -->
-    <div class="procedure__squawk animate-in">
+    <div class="article-squawk animate-in">
       <span>{squawkSeriesPart(post)}</span>
       <span> · </span>
       <span>{post.data.readingTime} MIN READ</span>
@@ -70,16 +70,16 @@ const showUpdated =
 
     <!-- Prerequisites -->
     {prereqPosts.length > 0 && (
-      <div class="animate-in">
-        <p class="procedure__clearance-label">CLEARANCE REQUIRED</p>
-        <ul class="procedure__prereqs">
+      <div class="article-prereqs animate-in">
+        <p class="article-prereqs__label">CLEARANCE REQUIRED</p>
+        <ul class="article-prereqs__list">
           {prereqPosts.map((p) => (
             <li>
-              <a href={`/${p.slug}`} class="procedure__prereq-link">→ {p.data.title}</a>
+              <a href={`/${p.slug}`} class="article-prereqs__link">→ {p.data.title}</a>
             </li>
           ))}
         </ul>
-        <p class="procedure__prereq-note">
+        <p class="article-prereqs__note">
           These provide context for what follows. You can continue without them.
         </p>
         <hr class="rule" />
@@ -87,17 +87,19 @@ const showUpdated =
     )}
 
     <!-- Article Header -->
-    <header class="procedure__header animate-in">
-      <h1 class="procedure__title">{post.data.title}</h1>
-      <p class="procedure__deck">{post.data.description}</p>
+    <header class="article-header animate-in">
+      <h1 class="article-header__title">{post.data.title}</h1>
+      <p class="article-header__deck">{post.data.description}</p>
       {post.data.author && (
-        <p class="procedure__byline">By {post.data.author}</p>
+        <p class="article-header__byline">By {post.data.author}</p>
       )}
     </header>
     <hr class="rule" />
 
-    <!-- Article Body -->
-    <div class="procedure__body">
+    <!-- Article Body (tripled for scroll-to-end testing) -->
+    <div class="article-body">
+      <Content />
+      <Content />
       <Content />
     </div>
     <div id="article-end-sentinel" data-slug={post.slug} aria-hidden="true"></div>
@@ -105,26 +107,20 @@ const showUpdated =
     <!-- Handoff Block -->
     {hasHandoff && (
       <>
-        <hr class="rule procedure__handoff-rule" />
-        <div class="procedure__handoff animate-in">
+        <hr class="rule article-handoff-rule" />
+        <div class="article-handoff animate-in">
           {prevPost && (
-            <div class="procedure__handoff-prev">
-              <p class="procedure__handoff-label-dim">← PREVIOUS</p>
-              <a href={`/${prevPost.slug}`} class="procedure__handoff-link-sm content-link">
-                {prevPost.data.title}
-              </a>
+            <div class="article-handoff__prev">
+              <a href={`/${prevPost.slug}`} class="article-handoff__prev-label">← PREVIOUS</a>
+              <a href={`/${prevPost.slug}`} class="article-handoff__prev-title">{prevPost.data.title}</a>
             </div>
           )}
           {nextPost && (
-            <div class="procedure__handoff-next">
-              <p class="procedure__handoff-label">CLEARED FOR</p>
-              <a href={`/${nextPost.slug}`} class="procedure__handoff-title content-link">
-                {nextPost.data.title}
-              </a>
-              <p class="procedure__handoff-desc">{nextPost.data.description}</p>
-              <a href={`/${nextPost.slug}`} class="procedure__handoff-cta vector">
-                CONTINUE →
-              </a>
+            <div class="article-handoff__next">
+              <p class="article-handoff__label">CLEARED FOR</p>
+              <a href={`/${nextPost.slug}`} class="article-handoff__title">{nextPost.data.title}</a>
+              <p class="article-handoff__desc">{nextPost.data.description}</p>
+              <a href={`/${nextPost.slug}`} class="article-handoff__cta">CONTINUE →</a>
             </div>
           )}
         </div>
@@ -134,11 +130,11 @@ const showUpdated =
     <!-- Tags -->
     {post.data.tags.length > 0 && (
       <>
-        <p class="procedure__tags">
+        <p class="article-tags">
           {post.data.tags.map((tag, i) => (
             <>
               {i > 0 && <span> · </span>}
-              <a href={`/tags/${tag}`} class="procedure__tag-link">{tag.toUpperCase().replace(/-/g, ' ')}</a>
+              <a href={`/tags/${tag}`} class="article-tags__link">{tag.toUpperCase().replace(/-/g, ' ')}</a>
             </>
           ))}
         </p>
@@ -149,6 +145,205 @@ const showUpdated =
 </BlogLayout>
 
 <style>
+  /* Content panel constraints — left-aligned, max-widths */
+  .article-squawk,
+  .article-header,
+  .article-handoff,
+  .article-prereqs {
+    max-width: 56rem;
+  }
+
+  .article-body {
+    max-width: 42rem;
+  }
+
+  .article-tags {
+    max-width: 56rem;
+  }
+
+  /* Squawk bar */
+  .article-squawk {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 var(--space-md);
+  }
+
+  /* Prerequisites */
+  .article-prereqs__label {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-vector);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: var(--space-md) 0 var(--space-xs);
+  }
+
+  .article-prereqs__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-sm);
+  }
+
+  .article-prereqs__list li {
+    margin-bottom: var(--space-xs);
+  }
+
+  .article-prereqs__link {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .article-prereqs__link:hover {
+    color: var(--color-text);
+  }
+
+  .article-prereqs__note {
+    font-family: var(--font-human);
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--color-text-dim);
+    margin: 0 0 var(--space-md);
+  }
+
+  /* Article header */
+  .article-header {
+    margin: var(--space-md) 0;
+  }
+
+  .article-header__title {
+    font-family: var(--font-editorial);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .article-header__deck {
+    font-family: var(--font-editorial);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-xl);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .article-header__byline {
+    font-family: var(--font-editorial);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-base);
+    color: var(--color-text-dim);
+    margin: 0;
+  }
+
+  /* Article body — prose */
+  .article-body {
+    font-family: var(--font-human);
+    font-size: var(--text-base);
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    margin: var(--space-md) 0;
+  }
+
+  .article-body :global(h2) {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-2xl);
+    color: var(--color-text);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+    line-height: 1.3;
+  }
+
+  .article-body :global(h3) {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-xl);
+    color: var(--color-text);
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+    line-height: 1.3;
+  }
+
+  .article-body :global(p) {
+    margin-bottom: var(--space-md);
+  }
+
+  .article-body :global(a) {
+    color: var(--color-vector);
+    text-decoration: none;
+  }
+
+  .article-body :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .article-body :global(blockquote) {
+    font-family: var(--font-editorial);
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: var(--color-text-muted);
+    border-left: 2px solid var(--color-vector);
+    padding-left: var(--space-md);
+    margin: var(--space-lg) 0;
+  }
+
+  .article-body :global(pre) {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    background: #111;
+    padding: var(--space-md);
+    border-left: 2px solid var(--color-rule-active);
+    overflow-x: auto;
+    margin: var(--space-md) 0;
+    line-height: 1.5;
+  }
+
+  .article-body :global(code) {
+    font-family: var(--font-system);
+    font-size: 0.9em;
+    background: #111;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .article-body :global(pre code) {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .article-body :global(ul),
+  .article-body :global(ol) {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-lg);
+    color: var(--color-text-secondary);
+  }
+
+  .article-body :global(li) {
+    margin-bottom: var(--space-xs);
+    line-height: 1.65;
+  }
+
+  .article-body :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin: var(--space-lg) 0;
+    border: 1px solid var(--color-rule);
+  }
+
+  .article-body :global(hr) {
+    border: none;
+    border-top: 1px solid var(--color-rule);
+    margin: var(--space-xl) 0;
+  }
+
+  /* Article end sentinel */
   #article-end-sentinel {
     height: 1px;
     width: 100%;
@@ -159,184 +354,23 @@ const showUpdated =
     visibility: hidden;
   }
 
-  .procedure {
-    max-width: 42rem;
-    margin: 0 auto;
-    padding: var(--space-lg) var(--space-md);
-  }
-
-  .procedure__squawk {
-    font-family: var(--font-system);
-    font-size: var(--text-xs);
-    color: var(--color-text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin: 0 0 var(--space-md);
-  }
-
-  .procedure__clearance-label {
-    font-family: var(--font-system);
-    font-size: var(--text-xs);
-    color: var(--color-vector);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin: var(--space-md) 0 var(--space-xs);
-  }
-
-  .procedure__prereqs {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 var(--space-sm);
-  }
-
-  .procedure__prereqs li {
-    margin-bottom: var(--space-xs);
-  }
-
-  .procedure__prereq-link {
-    font-family: var(--font-system);
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    text-decoration: none;
-  }
-
-  .procedure__prereq-link:hover {
-    color: var(--color-text);
-  }
-
-  .procedure__prereq-note {
-    font-family: var(--font-human);
-    font-size: var(--text-sm);
-    font-style: italic;
-    color: var(--color-text-dim);
-    margin: 0 0 var(--space-md);
-  }
-
-  .procedure__header {
-    margin: var(--space-md) 0;
-  }
-
-  .procedure__title {
-    font-family: var(--font-editorial);
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--color-text);
-    margin: 0 0 var(--space-sm);
-  }
-
-  .procedure__deck {
-    font-family: var(--font-editorial);
-    font-weight: 400;
-    font-style: italic;
-    font-size: var(--text-xl);
-    color: var(--color-text-muted);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .procedure__byline {
-    font-family: var(--font-editorial);
-    font-weight: 400;
-    font-style: italic;
-    font-size: var(--text-base);
-    color: var(--color-text-dim);
-    margin: 0;
-  }
-
-  .procedure__body {
-    margin: var(--space-md) 0;
-  }
-
-  /* Article body prose */
-  .procedure__body :global(p) {
-    font-family: var(--font-human);
-    font-size: var(--text-base);
-    line-height: 1.65;
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-md);
-  }
-
-  .procedure__body :global(h2) {
-    font-family: var(--font-human);
-    font-weight: 600;
-    font-size: var(--text-2xl);
-    color: var(--color-text);
-    margin-top: var(--space-xl);
-    margin-bottom: var(--space-md);
-  }
-
-  .procedure__body :global(h3) {
-    font-family: var(--font-human);
-    font-weight: 600;
-    font-size: var(--text-xl);
-    color: var(--color-text);
-    margin-top: var(--space-lg);
-    margin-bottom: var(--space-md);
-  }
-
-  .procedure__body :global(pre) {
-    font-family: var(--font-system);
-    font-size: var(--text-sm);
-    background: #111;
-    padding: var(--space-md);
-    border-left: 2px solid var(--color-rule-active);
-    overflow-x: auto;
-    margin: 0 0 var(--space-md);
-  }
-
-  .procedure__body :global(code) {
-    font-family: var(--font-system);
-    background: #111;
-    padding: 2px 6px;
-    border-radius: 2px;
-  }
-
-  .procedure__body :global(pre code) {
-    padding: 0;
-    background: transparent;
-  }
-
-  .procedure__body :global(blockquote) {
-    font-family: var(--font-editorial);
-    font-size: var(--text-xl);
-    font-style: italic;
-    color: var(--color-text-muted);
-    border-left: 2px solid var(--color-vector);
-    padding-left: var(--space-md);
-    margin: 0 0 var(--space-md);
-  }
-
-  .procedure__body :global(a) {
-    color: var(--color-vector);
-    text-decoration: none;
-  }
-
-  .procedure__body :global(a:hover) {
-    text-decoration: underline;
-  }
-
-  .procedure__body :global(ul),
-  .procedure__body :global(ol) {
-    color: var(--color-text-secondary);
-    line-height: 1.65;
-    margin-bottom: var(--space-md);
-  }
-
-  .procedure__handoff-rule {
+  /* Handoff block */
+  .article-handoff-rule {
     margin: var(--space-xl) 0;
   }
 
-  .procedure__handoff {
+  .article-handoff {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-lg);
     align-items: start;
   }
 
-  .procedure__handoff > *:only-child {
+  .article-handoff > *:only-child {
     grid-column: 1 / -1;
   }
 
-  .procedure__handoff-label {
+  .article-handoff__label {
     font-family: var(--font-system);
     font-size: var(--text-xs);
     color: var(--color-vector);
@@ -345,52 +379,69 @@ const showUpdated =
     margin: 0 0 var(--space-xs);
   }
 
-  .procedure__handoff-label-dim {
-    font-family: var(--font-system);
-    font-size: var(--text-xs);
-    color: var(--color-text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin: 0 0 var(--space-xs);
-  }
-
-  .procedure__handoff-title {
+  .article-handoff__title {
     font-family: var(--font-human);
     font-weight: 600;
     font-size: var(--text-2xl);
     color: var(--color-text);
     display: block;
     margin: 0 0 var(--space-xs);
+    text-decoration: none;
+    transition: color 200ms ease-out;
   }
 
-  .procedure__handoff-title:hover {
+  .article-handoff__title:hover {
     color: var(--color-hover-warm);
   }
 
-  .procedure__handoff-desc {
+  .article-handoff__desc {
     font-family: var(--font-human);
     font-size: var(--text-lg);
     color: var(--color-text-muted);
     margin: 0 0 var(--space-sm);
   }
 
-  .procedure__handoff-cta {
-    display: inline-block;
+  .article-handoff__cta {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    color: var(--color-vector);
+    text-decoration: none;
   }
 
-  .procedure__handoff-link-sm {
+  .article-handoff__cta:hover {
+    text-decoration: underline;
+  }
+
+  .article-handoff__prev-label {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: block;
+    margin: 0 0 var(--space-xs);
+    text-decoration: none;
+  }
+
+  .article-handoff__prev-label:hover {
+    color: var(--color-text-muted);
+  }
+
+  .article-handoff__prev-title {
     font-family: var(--font-system);
     font-size: var(--text-sm);
     color: var(--color-text-muted);
     display: block;
     margin: 0;
+    text-decoration: none;
   }
 
-  .procedure__handoff-link-sm:hover {
+  .article-handoff__prev-title:hover {
     color: var(--color-text);
   }
 
-  .procedure__tags {
+  /* Tags */
+  .article-tags {
     font-family: var(--font-system);
     font-size: var(--text-xs);
     color: var(--color-text-dim);
@@ -399,17 +450,17 @@ const showUpdated =
     margin: var(--space-md) 0 0;
   }
 
-  .procedure__tag-link {
+  .article-tags__link {
     color: var(--color-text-dim);
     text-decoration: none;
   }
 
-  .procedure__tag-link:hover {
+  .article-tags__link:hover {
     color: var(--color-text-muted);
   }
 
   @media (max-width: 640px) {
-    .procedure__handoff {
+    .article-handoff {
       grid-template-columns: 1fr;
     }
   }

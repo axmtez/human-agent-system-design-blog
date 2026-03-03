@@ -89,6 +89,9 @@ function excerpt(text: string, maxLen = 80) {
               </span>
             </a>
           ))}
+          <button type="button" id="reset-read-state" class="sidebar-reset-btn" title="Clear stored read state for testing">
+            Clear read state
+          </button>
         </div>
       </aside>
       <main class="content-panel" id="content-panel" transition:animate="fade">
@@ -179,6 +182,17 @@ function excerpt(text: string, maxLen = 80) {
         updateActiveArticle();
         updateSidebarReadStates();
         observeArticleEnd();
+
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar && !(window as unknown as { __resetReadStateAttached?: boolean }).__resetReadStateAttached) {
+          (window as unknown as { __resetReadStateAttached?: boolean }).__resetReadStateAttached = true;
+          sidebar.addEventListener('click', (e) => {
+            if ((e.target as Element).closest('#reset-read-state')) {
+              localStorage.removeItem(STORAGE_KEY);
+              updateSidebarReadStates();
+            }
+          });
+        }
 
         const contentPanel = document.getElementById('content-panel');
         const rules = document.querySelectorAll('hr.rule');
@@ -317,6 +331,26 @@ function excerpt(text: string, maxLen = 80) {
     min-height: 0;
   }
 
+  .sidebar-reset-btn {
+    margin-top: var(--space-md);
+    padding: var(--space-xs) var(--space-sm);
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--color-rule);
+    cursor: pointer;
+    width: 100%;
+    transition: color 150ms ease-out, border-color 150ms ease-out;
+  }
+
+  .sidebar-reset-btn:hover {
+    color: var(--color-text-muted);
+    border-color: var(--color-rule-active);
+  }
+
   .sidebar-article {
     display: block;
     padding: var(--space-sm) 0;
@@ -438,7 +472,7 @@ function excerpt(text: string, maxLen = 80) {
     height: 100vh;
     overflow-y: auto;
     background-color: var(--color-bg);
-    padding: var(--space-xl) var(--space-xl);
+    padding: var(--space-lg) var(--space-xl);
   }
 
   .blog-footer {
