@@ -11,9 +11,15 @@ interface Props {
 const { title, description = '' } = Astro.props;
 const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
 const pathname = Astro.url.pathname;
-const currentSlug = pathname === '/' || pathname.startsWith('/tags') || pathname.startsWith('/series') || pathname.startsWith('/reading') || pathname.startsWith('/page')
-  ? null
-  : pathname.replace(/^\//, '').split('/')[0] ?? null;
+const segments = pathname.replace(/^\//, '').split('/').filter(Boolean);
+const currentSlug =
+  pathname === '/' || pathname === '/blog' || pathname === '/blog/' || pathname.startsWith('/tags') || pathname.startsWith('/series') || pathname.startsWith('/reading') || pathname.startsWith('/page')
+    ? null
+    : pathname.startsWith('/blog/') && segments.length >= 2
+      ? segments[1]
+      : segments.length === 1
+        ? segments[0]
+        : null;
 
 const allPosts = (await getCollection('blog')).filter((p) => !p.data.draft);
 const foundations = [...allPosts]
@@ -48,7 +54,7 @@ function excerpt(text: string, maxLen = 80) {
     <div class="blog-shell">
       <aside class="sidebar" aria-label="Blog navigation" transition:name="sidebar" transition:persist>
         <div class="sidebar-branding">
-          <a href="/" class="sidebar-branding-link">
+          <a href="/blog" class="sidebar-branding-link">
             <span class="sidebar-branding__title">HAS DESIGN</span>
             <span class="sidebar-branding__tagline">HUMAN-AGENT-SYSTEM DESIGN</span>
           </a>
@@ -58,7 +64,7 @@ function excerpt(text: string, maxLen = 80) {
           <p class="sidebar-section-label sidebar-section-label--vector">FOUNDATIONS</p>
           {foundations.map((post) => (
             <a
-              href={`/${post.slug}`}
+              href={`/blog/${post.slug}`}
               class:list={['sidebar-article', currentSlug === post.slug && 'active']}
               data-slug={post.slug}
             >
@@ -75,7 +81,7 @@ function excerpt(text: string, maxLen = 80) {
           <p class="sidebar-section-label">ALL ARTICLES</p>
           {allOtherArticles.map((post) => (
             <a
-              href={`/${post.slug}`}
+              href={`/blog/${post.slug}`}
               class:list={['sidebar-article', currentSlug === post.slug && 'active']}
               data-slug={post.slug}
             >
@@ -167,7 +173,14 @@ function excerpt(text: string, maxLen = 80) {
       function updateActiveArticle() {
         const path = window.location.pathname;
         const segments = path.split('/').filter(Boolean);
-        const slug = segments.length === 1 ? segments[0] : null;
+        const slug =
+          path === '/blog' || path === '/blog/'
+            ? null
+            : path.startsWith('/blog/') && segments.length >= 2
+              ? segments[1]
+              : segments.length === 1
+                ? segments[0]
+                : null;
 
         document.querySelectorAll('.sidebar-article').forEach((el) => {
           el.classList.remove('active');
