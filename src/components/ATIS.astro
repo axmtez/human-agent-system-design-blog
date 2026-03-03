@@ -1,4 +1,6 @@
 ---
+import { getCollection } from 'astro:content';
+
 const mainSiteUrl = 'https://humanagentsystem.design';
 const dateline = new Date().toLocaleDateString('en-US', {
   weekday: 'long',
@@ -7,12 +9,19 @@ const dateline = new Date().toLocaleDateString('en-US', {
   day: 'numeric',
 });
 
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+const seriesSet = new Set(posts.map((p) => p.data.series).filter(Boolean));
+
+function seriesHref(slug: string) {
+  return seriesSet.has(slug) ? `/series/${slug}` : '/';
+}
+
 const sectors = [
-  { label: 'FOUNDATIONS', href: '/tags/foundations' },
-  { label: 'PATTERNS', href: '/tags/patterns' },
-  { label: 'ADVANCED', href: '/tags/advanced' },
-  { label: 'FIELD NOTES', href: '/tags/field-notes' },
-  { label: 'OPINION', href: '/tags/opinion' },
+  { label: 'FOUNDATIONS', href: seriesHref('foundations') },
+  { label: 'PATTERNS', href: seriesHref('patterns') },
+  { label: 'ADVANCED', href: seriesHref('advanced') },
+  { label: 'FIELD NOTES', href: '/#traffic' },
+  { label: 'OPINION', href: '/#traffic' },
 ];
 ---
 
