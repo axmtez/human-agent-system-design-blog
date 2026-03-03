@@ -9,6 +9,7 @@ interface Props {
 
 const { title, description = '' } = Astro.props;
 const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
+const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -25,12 +26,49 @@ const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href :
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
   </head>
   <body>
-    <ATIS />
+    <ATIS currentPath={currentPath} />
     <main>
       <slot />
     </main>
     <footer>
       <p>Human–agent system design</p>
     </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const rules = document.querySelectorAll('hr.rule');
+        const ruleObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                ruleObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+        rules.forEach((rule) => ruleObserver.observe(rule));
+
+        const animateEls = document.querySelectorAll('.animate-in');
+        const animateObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                animateObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+        animateEls.forEach((el) => animateObserver.observe(el));
+
+        document.querySelectorAll('.altitude-band, .sector-list').forEach((container) => {
+          container.querySelectorAll('.animate-in').forEach((el, i) => {
+            (el as HTMLElement).style.transitionDelay = `${i * 100}ms`;
+          });
+        });
+      });
+    </script>
   </body>
 </html>

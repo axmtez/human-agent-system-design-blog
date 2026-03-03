@@ -1,6 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
 
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '' } = Astro.props;
+
 const mainSiteUrl = 'https://humanagentsystem.design';
 const dateline = new Date().toLocaleDateString('en-US', {
   weekday: 'long',
@@ -23,6 +29,11 @@ const sectors = [
   { label: 'FIELD NOTES', href: '/#traffic' },
   { label: 'OPINION', href: '/#traffic' },
 ];
+
+function isActive(href: string) {
+  if (href === '/#traffic' || href === '/') return false;
+  return currentPath === href || currentPath.startsWith(href + '/');
+}
 ---
 
 <header class="atis" role="banner">
@@ -52,11 +63,16 @@ const sectors = [
   <hr class="rule" />
 
   <!-- Row 3 — Sector Nav -->
-  <nav class="atis__row atis__sectors" aria-label="Sectors by altitude">
+  <nav class="atis__row atis__sectors sector-nav" aria-label="Sectors by altitude">
     {sectors.map((sector, i) => (
       <>
         {i > 0 && <span class="atis__sector-sep" aria-hidden="true"> · </span>}
-        <a href={sector.href} class="atis__sector-link">{sector.label}</a>
+        <a
+          href={sector.href}
+          class:list={['atis__sector-link', isActive(sector.href) && 'atis__sector-link--active']}
+        >
+          {sector.label}
+        </a>
       </>
     ))}
   </nav>
@@ -178,27 +194,31 @@ const sectors = [
     color: var(--color-text-dim);
     text-decoration: none;
     position: relative;
-    padding-bottom: 2px;
+    padding-bottom: 4px;
     transition: color 150ms ease-out;
   }
 
-  .atis__sector-link:hover {
+  .atis__sector-link:hover,
+  .atis__sector-link--active {
     color: var(--color-text);
   }
 
   .atis__sector-link::after {
     content: '';
     position: absolute;
+    bottom: -4px;
     left: 0;
-    bottom: 0;
-    height: 1px;
-    background: var(--color-text);
-    width: 0;
-    transition: width 150ms ease-out;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-text);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 150ms ease-out;
   }
 
-  .atis__sector-link:hover::after {
-    width: 100%;
+  .atis__sector-link:hover::after,
+  .atis__sector-link--active::after {
+    transform: scaleX(1);
   }
 
   .atis__sector-sep {

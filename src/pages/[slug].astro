@@ -50,9 +50,10 @@ const showUpdated =
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
+  <div class="reading-progress" aria-hidden="true"></div>
   <article class="procedure">
     <!-- Squawk Bar -->
-    <div class="procedure__squawk">
+    <div class="procedure__squawk animate-in">
       <span>{squawkSeriesPart(post)}</span>
       <span> · </span>
       <span>{post.data.readingTime} MIN READ</span>
@@ -69,7 +70,7 @@ const showUpdated =
 
     <!-- Prerequisites -->
     {prereqPosts.length > 0 && (
-      <>
+      <div class="animate-in">
         <p class="procedure__clearance-label">CLEARANCE REQUIRED</p>
         <ul class="procedure__prereqs">
           {prereqPosts.map((p) => (
@@ -82,11 +83,11 @@ const showUpdated =
           These provide context for what follows. You can continue without them.
         </p>
         <hr class="rule" />
-      </>
+      </div>
     )}
 
     <!-- Article Header -->
-    <header class="procedure__header">
+    <header class="procedure__header animate-in">
       <h1 class="procedure__title">{post.data.title}</h1>
       <p class="procedure__deck">{post.data.description}</p>
       {post.data.author && (
@@ -104,7 +105,7 @@ const showUpdated =
     {hasHandoff && (
       <>
         <hr class="rule procedure__handoff-rule" />
-        <div class="procedure__handoff">
+        <div class="procedure__handoff animate-in">
           {prevPost && (
             <div class="procedure__handoff-prev">
               <p class="procedure__handoff-label-dim">← PREVIOUS</p>
@@ -401,4 +402,30 @@ const showUpdated =
       grid-template-columns: 1fr;
     }
   }
+
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background-color: var(--color-vector);
+    width: 0%;
+    z-index: 9999;
+    transition: width 100ms linear;
+    pointer-events: none;
+  }
 </style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const progressBar = document.querySelector('.reading-progress');
+    if (progressBar) {
+      const updateProgress = () => {
+        const scrollHeight = document.body.scrollHeight - window.innerHeight;
+        const progress = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
+        (progressBar as HTMLElement).style.width = Math.min(progress, 100) + '%';
+      };
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+    }
+  });
+</script>

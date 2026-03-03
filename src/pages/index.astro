@@ -115,7 +115,7 @@ function seriesLabel(post: Post): string | null {
   <article class="scope">
     <!-- Section 1: Active Series Banner -->
     {activeSeries && (
-      <section class="scope__banner">
+      <section class="scope__banner animate-in">
         <p class="scope__banner-label">NOW PUBLISHING</p>
         <h2 class="scope__banner-title">{activeSeries.displayName}</h2>
         <p class="scope__banner-meta">
@@ -135,14 +135,14 @@ function seriesLabel(post: Post): string | null {
       const leftCol = articles.slice(0, half);
       const rightCol = articles.slice(half);
       return (
-        <section class="scope__band">
-          <h3 class="scope__band-label">{label}</h3>
+        <section class="scope__band altitude-band">
+          <h3 class="scope__band-label animate-in">{label}</h3>
           <div class="altitude-grid">
             <div class="altitude-grid__col">
               {leftCol.map((post, i) => (
                 <>
                   {i > 0 && <hr class="rule" />}
-                  <a href={`/${post.slug}`} class="scope__article content-link">
+                  <a href={`/${post.slug}`} class="scope__article content-link article-entry animate-in">
                     {seriesLabel(post) && (
                       <p class="scope__article-series">{seriesLabel(post)}</p>
                     )}
@@ -151,7 +151,7 @@ function seriesLabel(post: Post): string | null {
                     <p class="scope__article-meta">
                       {post.data.readingTime} MIN · {formatDate(post.data.publishDate)}
                     </p>
-                    <span class="scope__article-read">READ →</span>
+                    <span class="scope__article-read read-indicator">READ →</span>
                   </a>
                 </>
               ))}
@@ -161,7 +161,7 @@ function seriesLabel(post: Post): string | null {
               {rightCol.map((post, i) => (
                 <>
                   {i > 0 && <hr class="rule" />}
-                  <a href={`/${post.slug}`} class="scope__article content-link">
+                  <a href={`/${post.slug}`} class="scope__article content-link article-entry animate-in">
                     {seriesLabel(post) && (
                       <p class="scope__article-series">{seriesLabel(post)}</p>
                     )}
@@ -170,7 +170,7 @@ function seriesLabel(post: Post): string | null {
                     <p class="scope__article-meta">
                       {post.data.readingTime} MIN · {formatDate(post.data.publishDate)}
                     </p>
-                    <span class="scope__article-read">READ →</span>
+                    <span class="scope__article-read read-indicator">READ →</span>
                   </a>
                 </>
               ))}
@@ -183,18 +183,18 @@ function seriesLabel(post: Post): string | null {
 
     <!-- Section 3: Transient Traffic -->
     {traffic.length > 0 && (
-      <section class="scope__traffic" id="traffic">
-        <h3 class="scope__band-label">TRAFFIC</h3>
+      <section class="scope__traffic animate-in" id="traffic">
+        <h3 class="scope__band-label animate-in">TRAFFIC</h3>
         <div class="scope__traffic-list">
           {traffic.map((post, i) => (
             <>
               {i > 0 && <hr class="rule" />}
-              <a href={`/${post.slug}`} class="scope__traffic-item content-link">
+              <a href={`/${post.slug}`} class="scope__traffic-item content-link article-entry animate-in">
                 <h4 class="scope__traffic-title">{post.data.title}</h4>
                 <p class="scope__traffic-meta">
                   {formatDate(post.data.publishDate)} · {post.data.description}
                 </p>
-                <span class="scope__article-read">READ →</span>
+                <span class="scope__article-read read-indicator">READ →</span>
               </a>
             </>
           ))}

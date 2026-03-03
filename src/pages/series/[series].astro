@@ -67,7 +67,7 @@ function partNum(n: number) {
 
 <BaseLayout title={title} description={description}>
   <article class="sector">
-    <header class="sector__header">
+    <header class="sector__header animate-in">
       <p class="sector__label">SECTOR</p>
       <h1 class="sector__title">{title}</h1>
       <p class="sector__desc">{description}</p>
@@ -77,17 +77,17 @@ function partNum(n: number) {
     </header>
     <hr class="rule" />
 
-    <ol class="sector__list">
+    <ol class="sector__list sector-list">
       {articles.map((post, i) => (
         <>
           {i > 0 && <hr class="rule" />}
-          <li class="sector__item">
+          <li class="sector__item animate-in">
             <div class="sector__part-num">{partNum(post.data.seriesPart ?? i + 1)}</div>
-            <a href={`/${post.slug}`} class="sector__entry content-link">
+            <a href={`/${post.slug}`} class="sector__entry content-link article-entry">
               <h2 class="sector__entry-title">{post.data.title}</h2>
               <p class="sector__entry-desc">{post.data.description}</p>
               <p class="sector__entry-meta">{post.data.readingTime} MIN READ</p>
-              <span class="sector__entry-read">READ →</span>
+              <span class="sector__entry-read read-indicator">READ →</span>
             </a>
           </li>
         </>
