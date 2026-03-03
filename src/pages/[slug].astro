@@ -2,37 +2,403 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+
+type Post = CollectionEntry<'blog'>;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+  const bySlug = new Map(posts.map((p) => [p.slug, p]));
+
+  return posts.map((post) => {
+    const prereqPosts = (post.data.prerequisites ?? [])
+      .map((slug) => bySlug.get(slug))
+      .filter((p) => p != null) as Post[];
+    const nextPost = post.data.nextArticle
+      ? (bySlug.get(post.data.nextArticle) ?? null)
+      : null;
+    const prevPost = post.data.prevArticle
+      ? (bySlug.get(post.data.prevArticle) ?? null)
+      : null;
+    return {
+      params: { slug: post.slug },
+      props: { post, prereqPosts, nextPost, prevPost },
+    };
+  });
 };
 
-const { post } = Astro.props;
+const { post, prereqPosts, nextPost, prevPost } = Astro.props;
 const { Content } = await post.render();
+
+function formatSquawkDate(d: Date) {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+}
+
+function squawkSeriesPart(post: Post): string {
+  const { series, seriesPart, seriesTotal, altitude } = post.data;
+  if (series && seriesPart != null && seriesTotal != null) {
+    const name = series.toUpperCase().replace(/-/g, ' ');
+    return `${name} · PART ${seriesPart} OF ${seriesTotal}`;
+  }
+  return altitude.toUpperCase().replace(/-/g, ' ');
+}
+
+const hasHandoff = nextPost || prevPost;
+const showUpdated =
+  post.data.updatedDate &&
+  post.data.updatedDate.valueOf() !== post.data.publishDate.valueOf();
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <article>
-    <header>
-      <time datetime={post.data.publishDate.toISOString()}>
-        {post.data.publishDate.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
-      </time>
-      <h1>{post.data.title}</h1>
-      {post.data.author && <p>By {post.data.author}</p>}
-      {post.data.tags.length > 0 && (
-        <ul>
-          {post.data.tags.map((tag) => (
-            <li><a href={`/tags/${tag}`}>{tag}</a></li>
+  <article class="procedure">
+    <!-- Squawk Bar -->
+    <div class="procedure__squawk">
+      <span>{squawkSeriesPart(post)}</span>
+      <span> · </span>
+      <span>{post.data.readingTime} MIN READ</span>
+      <span> · </span>
+      <span>{formatSquawkDate(post.data.publishDate)}</span>
+      {showUpdated && (
+        <>
+          <span> · </span>
+          <span>UPDATED {formatSquawkDate(post.data.updatedDate)}</span>
+        </>
+      )}
+    </div>
+    <hr class="rule" />
+
+    <!-- Prerequisites -->
+    {prereqPosts.length > 0 && (
+      <>
+        <p class="procedure__clearance-label">CLEARANCE REQUIRED</p>
+        <ul class="procedure__prereqs">
+          {prereqPosts.map((p) => (
+            <li>
+              <a href={`/${p.slug}`} class="procedure__prereq-link">→ {p.data.title}</a>
+            </li>
           ))}
         </ul>
+        <p class="procedure__prereq-note">
+          These provide context for what follows. You can continue without them.
+        </p>
+        <hr class="rule" />
+      </>
+    )}
+
+    <!-- Article Header -->
+    <header class="procedure__header">
+      <h1 class="procedure__title">{post.data.title}</h1>
+      <p class="procedure__deck">{post.data.description}</p>
+      {post.data.author && (
+        <p class="procedure__byline">By {post.data.author}</p>
       )}
     </header>
-    <div>
+    <hr class="rule" />
+
+    <!-- Article Body -->
+    <div class="procedure__body">
       <Content />
     </div>
+
+    <!-- Handoff Block -->
+    {hasHandoff && (
+      <>
+        <hr class="rule procedure__handoff-rule" />
+        <div class="procedure__handoff">
+          {prevPost && (
+            <div class="procedure__handoff-prev">
+              <p class="procedure__handoff-label-dim">← PREVIOUS</p>
+              <a href={`/${prevPost.slug}`} class="procedure__handoff-link-sm content-link">
+                {prevPost.data.title}
+              </a>
+            </div>
+          )}
+          {nextPost && (
+            <div class="procedure__handoff-next">
+              <p class="procedure__handoff-label">CLEARED FOR</p>
+              <a href={`/${nextPost.slug}`} class="procedure__handoff-title content-link">
+                {nextPost.data.title}
+              </a>
+              <p class="procedure__handoff-desc">{nextPost.data.description}</p>
+              <a href={`/${nextPost.slug}`} class="procedure__handoff-cta vector">
+                CONTINUE →
+              </a>
+            </div>
+          )}
+        </div>
+      </>
+    )}
+
+    <!-- Tags -->
+    {post.data.tags.length > 0 && (
+      <>
+        <p class="procedure__tags">
+          {post.data.tags.map((tag, i) => (
+            <>
+              {i > 0 && <span> · </span>}
+              <a href={`/tags/${tag}`} class="procedure__tag-link">{tag.toUpperCase().replace(/-/g, ' ')}</a>
+            </>
+          ))}
+        </p>
+        <hr class="rule" />
+      </>
+    )}
   </article>
 </BaseLayout>
+
+<style>
+  .procedure {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .procedure__squawk {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 var(--space-md);
+  }
+
+  .procedure__clearance-label {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-vector);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: var(--space-md) 0 var(--space-xs);
+  }
+
+  .procedure__prereqs {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-sm);
+  }
+
+  .procedure__prereqs li {
+    margin-bottom: var(--space-xs);
+  }
+
+  .procedure__prereq-link {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .procedure__prereq-link:hover {
+    color: var(--color-text);
+  }
+
+  .procedure__prereq-note {
+    font-family: var(--font-human);
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--color-text-dim);
+    margin: 0 0 var(--space-md);
+  }
+
+  .procedure__header {
+    margin: var(--space-md) 0;
+  }
+
+  .procedure__title {
+    font-family: var(--font-editorial);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .procedure__deck {
+    font-family: var(--font-editorial);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-xl);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .procedure__byline {
+    font-family: var(--font-editorial);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-base);
+    color: var(--color-text-dim);
+    margin: 0;
+  }
+
+  .procedure__body {
+    margin: var(--space-md) 0;
+  }
+
+  /* Article body prose */
+  .procedure__body :global(p) {
+    font-family: var(--font-human);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--space-md);
+  }
+
+  .procedure__body :global(h2) {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-2xl);
+    color: var(--color-text);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+  }
+
+  .procedure__body :global(h3) {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-xl);
+    color: var(--color-text);
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-md);
+  }
+
+  .procedure__body :global(pre) {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    background: #111;
+    padding: var(--space-md);
+    border-left: 2px solid var(--color-rule-active);
+    overflow-x: auto;
+    margin: 0 0 var(--space-md);
+  }
+
+  .procedure__body :global(code) {
+    font-family: var(--font-system);
+    background: #111;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .procedure__body :global(pre code) {
+    padding: 0;
+    background: transparent;
+  }
+
+  .procedure__body :global(blockquote) {
+    font-family: var(--font-editorial);
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: var(--color-text-muted);
+    border-left: 2px solid var(--color-vector);
+    padding-left: var(--space-md);
+    margin: 0 0 var(--space-md);
+  }
+
+  .procedure__body :global(a) {
+    color: var(--color-vector);
+    text-decoration: none;
+  }
+
+  .procedure__body :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .procedure__body :global(ul),
+  .procedure__body :global(ol) {
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+    margin-bottom: var(--space-md);
+  }
+
+  .procedure__handoff-rule {
+    margin: var(--space-xl) 0;
+  }
+
+  .procedure__handoff {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .procedure__handoff > *:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .procedure__handoff-label {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-vector);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-xs);
+  }
+
+  .procedure__handoff-label-dim {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-xs);
+  }
+
+  .procedure__handoff-title {
+    font-family: var(--font-human);
+    font-weight: 600;
+    font-size: var(--text-2xl);
+    color: var(--color-text);
+    display: block;
+    margin: 0 0 var(--space-xs);
+  }
+
+  .procedure__handoff-title:hover {
+    color: var(--color-hover-warm);
+  }
+
+  .procedure__handoff-desc {
+    font-family: var(--font-human);
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .procedure__handoff-cta {
+    display: inline-block;
+  }
+
+  .procedure__handoff-link-sm {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    display: block;
+    margin: 0;
+  }
+
+  .procedure__handoff-link-sm:hover {
+    color: var(--color-text);
+  }
+
+  .procedure__tags {
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: var(--space-md) 0 0;
+  }
+
+  .procedure__tag-link {
+    color: var(--color-text-dim);
+    text-decoration: none;
+  }
+
+  .procedure__tag-link:hover {
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .procedure__handoff {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
