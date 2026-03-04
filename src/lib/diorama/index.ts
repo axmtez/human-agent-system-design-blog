@@ -10,3 +10,13 @@ export { createTaxiwaysAndApron } from './taxiways';
 export { createHoldingRing } from './holding';
 export { buildComposedScene } from './composed';
 export { updateAmbientAnimations } from './ambient';
+export {
+  STORY_BEATS,
+  getBeatAtProgress,
+  dimMeshes,
+  restoreMeshes,
+  lerpCameraState,
+  setCameraState,
+  type StoryBeat,
+  type CameraState,
+} from './beats';

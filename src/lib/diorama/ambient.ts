@@ -23,7 +23,7 @@ export function updateAmbientAnimations(
     ];
     list.forEach((ac, i) => {
       if (!ac) return;
-      const phase = elapsed + PHASE_OFFSETS[i] ?? 0;
+      const phase = elapsed + (PHASE_OFFSETS[i] ?? 0);
       const beacon = ac.userData.beaconLight;
       if (beacon) {
         beacon.intensity = Math.sin(phase * 5) > 0.9 ? 0.8 : 0;

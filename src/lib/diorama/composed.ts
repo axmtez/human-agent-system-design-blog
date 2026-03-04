@@ -75,12 +75,16 @@ export function buildComposedScene(scene: THREE.Scene): void {
     new THREE.Vector3(5, 4.2, -5),
     new THREE.Vector3(8, 2, 0),
   ]);
-  const handoffLineMat = new THREE.LineBasicMaterial({
+  const handoffLineMat = new THREE.LineDashedMaterial({
     color: 0x4a9eff,
     transparent: true,
     opacity: 0,
+    dashSize: 0.5,
+    gapSize: 0.3,
   });
   const handoffLine = new THREE.Line(handoffLineGeom, handoffLineMat);
+  handoffLine.computeLineDistances();
   handoffLine.userData = { sceneGroup: 'handoff-line' };
   scene.add(handoffLine);
+  (scene.userData as Record<string, unknown>).handoffLine = handoffLine;
 }

@@ -1,13 +1,41 @@
 ---
 import BlogLayout from '../layouts/BlogLayout.astro';
+
+const BEAT_LABELS = [
+  { title: 'THE AIRSPACE', body: 'The full system in view.' },
+  { title: 'THE CONTROLLER', body: 'Tower coordinates traffic.' },
+  { title: 'THE AIRCRAFT', body: 'Approach in progress.' },
+  { title: 'THE HANDOFF', body: 'Clear handoff from tower to pilot.' },
+  { title: 'THE GUARDRAILS', body: 'Holding pattern keeps separation.' },
+  { title: 'THIS IS HAS DESIGN', body: 'Human–agent system design.' },
+];
 ---
 
 <BlogLayout title="HAS Design" description="Human–agent system design." showFooter={false}>
   <div id="landing-page" class="diorama-view">
     <div id="diorama-mount" class="diorama-mount">
-      <p class="diorama-mount__placeholder">DIORAMA LOADING</p>
+      <div id="diorama-scroll-panel" class="diorama-scroll-panel">
+        <div id="diorama-sticky-wrap" class="diorama-sticky-wrap">
+          <div id="diorama-container" class="diorama-container"></div>
+          <div id="diorama-labels" class="diorama-labels" aria-live="polite">
+            {BEAT_LABELS.map((label, i) => (
+              <div class="beat-label" data-beat={i} aria-hidden="true">
+                <p class="beat-label__title">{label.title}</p>
+                <p class="beat-label__body">{label.body}</p>
+              </div>
+            ))}
+          </div>
+          <div class="diorama-cta">
+            <a href="/reading/start-here" class="diorama-cta__link">BEGIN PART 1 →</a>
+          </div>
+        </div>
+        <div id="diorama-scroll-track" class="diorama-scroll-track"></div>
+      </div>
     </div>
   </div>
+  <script>
+    import '/src/scripts/landing-diorama';
+  </script>
 </BlogLayout>
 
 <style>
@@ -25,17 +53,105 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     min-height: 0;
     width: 100%;
     overflow: hidden;
+  }
+
+  .diorama-scroll-panel {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .diorama-sticky-wrap {
+    position: sticky;
+    top: 0;
+    height: 80vh;
+    width: 100%;
+    background: var(--color-bg, #0a0a0a);
+  }
+
+  .diorama-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .diorama-labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem;
+  }
+
+  .beat-label {
+    position: absolute;
+    transition: opacity 0.2s ease;
+    opacity: 0;
+    max-width: 20rem;
+  }
+
+  .beat-label__title {
+    font-family: var(--font-system);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-vector, #4a9eff);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .beat-label__body {
+    font-family: var(--font-human);
+    font-size: 0.95rem;
+    color: var(--color-text-secondary, #bbb);
+    margin: 0;
+  }
+
+  .diorama-cta {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 11;
+    pointer-events: auto;
+  }
+
+  .diorama-cta__link {
+    font-family: var(--font-system);
+    font-size: var(--text-sm);
+    letter-spacing: 0.06em;
+    color: var(--color-vector);
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-vector);
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .diorama-cta__link:hover {
+    background: var(--color-vector);
+    color: var(--color-bg);
+  }
+
+  .diorama-scroll-track {
+    height: 500vh;
+    width: 100%;
+  }
+
+  .diorama-container.diorama-mobile-fallback {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--color-bg);
   }
 
-  .diorama-mount__placeholder {
+  .diorama-container.diorama-mobile-fallback::after {
+    content: 'Human–agent system design';
     font-family: var(--font-system);
     font-size: var(--text-sm);
-    color: var(--color-text-dim);
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin: 0;
+    color: var(--color-text-dim);
   }
 </style>
