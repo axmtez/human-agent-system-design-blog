@@ -101,7 +101,7 @@ function excerpt(text: string, maxLen = 80) {
           </button>
         </div>
       </aside>
-      <main class="content-panel" id="content-panel" transition:animate="fade">
+      <main class:list={['content-panel', (pathname === '/' || pathname === '') && 'content-panel--landing']} id="content-panel" transition:animate="fade">
         <slot />
         {showFooter && (
           <footer class="blog-footer">
@@ -489,6 +489,11 @@ function excerpt(text: string, maxLen = 80) {
     overflow-y: auto;
     background-color: var(--color-bg);
     padding: var(--space-lg) var(--space-xl);
+  }
+
+  .content-panel.content-panel--landing {
+    overflow: hidden;
+    padding: 0;
   }
 
   .blog-footer {

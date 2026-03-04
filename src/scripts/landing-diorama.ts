@@ -1,27 +1,61 @@
 /**
- * Landing page diorama: scroll-driven story, labels, CTA.
- * Re-inits on astro:after-swap when returning to /. ILI-427, ILI-428.
+ * Landing page diorama: animation loop only (no scroll).
+ * Tower central, runway left–right, one plane parks while the other taxis out and takes off. Loop.
  */
 import * as THREE from 'three';
 import {
   initTestScene,
   buildComposedScene,
   updateAmbientAnimations,
-} from '../lib/diorama';
-import {
-  STORY_BEATS,
-  getBeatAtProgress,
-  LERP_SNAP_THRESHOLD,
-  BEAT_LABEL_POSITIONS,
-  dimMeshes,
-  restoreMeshes,
-  lerpCameraState,
-  setCameraState,
+  updateLandingTakeoffLoop,
+  LOOP_DURATION,
 } from '../lib/diorama';
 
-const SCROLL_TRACK_VH = 500;
 const MOBILE_BREAKPOINT_PX = 900;
 const RESIZE_THROTTLE_MS = 150;
+const VIEW_SIZE = 55;
+const CAMERA_LOOKAT = new THREE.Vector3(0, 1, 2);
+
+/** World positions to anchor static labels so they sit near the relevant prop (tower, ramp, center). */
+const LABEL_ANCHORS: [number, number, number][] = [
+  [-10, 1, 21], // THE AIRSPACE — upper left of left (second) runway strip (x=-10, z=6+15)
+  [-4, 2.5, 0], // THE CONTROLLER — above tower
+  [0, 0, 0],   // (unused; THE AIRCRAFT tracks plane)
+  [0, 0.5, 2], // THE HANDOFF — above ramp/parking
+  [0, 0, 0],   // (unused; THE GUARDRAILS tracks plane2)
+  [-10, 1, 21], // THIS IS HAS DESIGN — upper left of left (second) runway
+];
+
+/** Per-label screen offset (dx, dy) in px so labels don’t overlay tower/ramp. dy negative = up. */
+const LABEL_ANCHOR_OFFSETS: [number, number][] = [
+  [140, -432], // THE AIRSPACE — further right, 400px up
+  [72, -24],   // THE CONTROLLER — right and up from tower
+  [0, 0],
+  [200, -48],  // THE HANDOFF — 200px right so not over tower
+  [0, 0],
+  [180, -48],  // THIS IS HAS DESIGN — right so on screen, up = upper left of view
+];
+
+/** Timed beats: normalized u (0–1). Aligned with build-order ILI-423; THE AIRCRAFT starts sooner (0.06) and ends before park (0.38) per UX. */
+const TIMED_BEATS: { uStart: number; uEnd: number; labelIndex: number; track: 'plane' | 'plane2' | null }[] = [
+  { uStart: 0, uEnd: 0.15, labelIndex: 0, track: null },       // THE AIRSPACE — full scene
+  { uStart: 0.15, uEnd: 0.3, labelIndex: 1, track: null },     // THE CONTROLLER — tower focus
+  { uStart: 0.06, uEnd: 0.38, labelIndex: 2, track: 'plane' }, // THE AIRCRAFT — sooner, fade before park
+  { uStart: 0.5, uEnd: 0.65, labelIndex: 3, track: null },     // THE HANDOFF — tower↔aircraft at park
+  { uStart: 0.73, uEnd: 1, labelIndex: 4, track: 'plane2' },   // THE GUARDRAILS — only when plane2 is landing (not on takeoff)
+  { uStart: 0.8, uEnd: 1, labelIndex: 5, track: null },        // THIS IS HAS DESIGN — full scene
+];
+
+const LABEL_ABOVE_OFFSET_PX = 24;
+
+/** "THE AIRSPACE" (beat index 0) is fixed 400px from top of viewport, left from anchor. */
+const AIRSPACE_LABEL_INDEX = 0;
+const AIRSPACE_TOP_PX = 400;
+
+/** Show THE GUARDRAILS label only when plane2 is landing (u2 >= this). Respawn/landing starts at 0.55. */
+const PLANE2_LANDING_START_U = 0.55;
+const PLANE2_START_U = 0.5 - 3 / LOOP_DURATION;
+const _worldPos = new THREE.Vector3();
 
 let scene: THREE.Scene | null = null;
 let resizeThrottleId: ReturnType<typeof setTimeout> | null = null;
@@ -58,121 +92,150 @@ function dispose(): void {
 }
 
 function run(): void {
-  const scrollPanel = document.getElementById('diorama-scroll-panel');
   const container = document.getElementById('diorama-container');
-  const labelsContainer = document.getElementById('diorama-labels');
-  if (!scrollPanel || !container || !labelsContainer) return;
+  if (!container) return;
   rafActive = false;
   if (animationId != null) cancelAnimationFrame(animationId);
 
   const { scene: s, camera: cam, renderer: r, canvas: c, updateFrustum } = initTestScene(container);
   scene = s;
-  camera = cam;
   renderer = r;
   canvas = c;
+
+  camera = cam;
+  camera.position.set(50, 45, 50);
+  camera.lookAt(CAMERA_LOOKAT);
+  const aspect = container.clientWidth / container.clientHeight;
+  const half = VIEW_SIZE * 0.5;
+  camera.left = -half * aspect;
+  camera.right = half * aspect;
+  camera.top = half;
+  camera.bottom = -half;
+  camera.near = 0.1;
+  camera.far = 500;
+  camera.updateProjectionMatrix();
+
   buildComposedScene(scene);
 
+  const labelsRoot = container.parentElement?.querySelector('.diorama-labels') as HTMLElement | null;
+  const labelEls = labelsRoot ? Array.from(labelsRoot.querySelectorAll<HTMLElement>('.beat-label')) : [];
+
   const clock = new THREE.Clock();
-  const aircraft = scene.userData.aircraft as Record<string, THREE.Group> | undefined;
-  const handoffLine = (scene.userData as Record<string, unknown>).handoffLine as THREE.Line | undefined;
 
-  function getProgress(): number {
-    const trackHeight = (window.innerHeight * SCROLL_TRACK_VH) / 100;
-    const maxScroll = trackHeight - scrollPanel.clientHeight;
-    if (maxScroll <= 0) return 0;
-    return Math.max(0, Math.min(1, scrollPanel.scrollTop / maxScroll));
-  }
-
-  function updateHandoffLine(opacity: number): void {
-    if (!handoffLine?.geometry || !aircraft?.approach) return;
-    const towerWorld = new THREE.Vector3(5, 4.2, -5);
-    const approachWorld = new THREE.Vector3();
-    aircraft.approach.getWorldPosition(approachWorld);
-    const pos = handoffLine.geometry.attributes.position as THREE.BufferAttribute;
-    if (pos) {
-      pos.setXYZ(0, towerWorld.x, towerWorld.y, towerWorld.z);
-      pos.setXYZ(1, approachWorld.x, approachWorld.y, approachWorld.z);
-      pos.needsUpdate = true;
+  function updateLabels(elapsed: number): void {
+    if (!labelsRoot || !labelEls.length || !camera || !scene) return;
+    const u = (elapsed % LOOP_DURATION) / LOOP_DURATION;
+    let current = TIMED_BEATS[0];
+    for (const beat of TIMED_BEATS) {
+      if (u >= beat.uStart && u < beat.uEnd) {
+        current = beat;
+        break;
+      }
     }
-    (handoffLine.material as THREE.LineDashedMaterial).opacity = opacity;
-    handoffLine.computeLineDistances();
+    const aircraft = scene.userData.aircraft as { plane?: THREE.Group; plane2?: THREE.Group } | undefined;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+
+    const plane2PhaseU = u >= PLANE2_START_U ? (u - PLANE2_START_U) / (1 - PLANE2_START_U) : 0;
+    const plane2IsLanding = plane2PhaseU >= PLANE2_LANDING_START_U;
+
+    labelEls.forEach((el, i) => {
+      const isActive = i === current.labelIndex;
+      el.style.transition = 'opacity 0.25s ease';
+
+      if (!isActive) {
+        el.style.opacity = '0';
+        return;
+      }
+
+      if (current.labelIndex === 4 && !plane2IsLanding) {
+        el.style.opacity = '0';
+        return;
+      }
+
+      if (current.track && aircraft) {
+        const obj = current.track === 'plane' ? aircraft.plane : aircraft.plane2;
+        if (!obj?.visible) {
+          el.style.opacity = '0';
+          return;
+        }
+        const beatSpan = current.uEnd - current.uStart;
+        const beatProgress = beatSpan > 0 ? (u - current.uStart) / beatSpan : 1;
+        const fadeOutStart = 0.55;
+        const labelOpacity =
+          current.labelIndex === 2 && beatProgress > fadeOutStart
+            ? Math.max(0, 1 - (beatProgress - fadeOutStart) / (1 - fadeOutStart))
+            : 1;
+        obj.getWorldPosition(_worldPos);
+        _worldPos.project(camera!);
+        const x = ((_worldPos.x + 1) / 2) * w;
+        const y = (1 - (_worldPos.y + 1) / 2) * h - LABEL_ABOVE_OFFSET_PX;
+        el.style.opacity = String(labelOpacity);
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.right = '';
+        el.style.bottom = '';
+        el.style.transform = 'translate(-50%, -100%)';
+        return;
+      }
+
+      if (current.labelIndex === AIRSPACE_LABEL_INDEX) {
+        const anchor = LABEL_ANCHORS[AIRSPACE_LABEL_INDEX];
+        const [ox] = LABEL_ANCHOR_OFFSETS[AIRSPACE_LABEL_INDEX];
+        _worldPos.set(anchor[0], anchor[1], anchor[2]);
+        _worldPos.project(camera!);
+        const x = ((_worldPos.x + 1) / 2) * w + ox;
+        el.style.opacity = '1';
+        el.style.left = `${x}px`;
+        el.style.top = `${AIRSPACE_TOP_PX}px`;
+        el.style.right = '';
+        el.style.bottom = '';
+        el.style.transform = 'translate(-50%, -100%)';
+        return;
+      }
+
+      const anchor = LABEL_ANCHORS[current.labelIndex];
+      const [ox, oy] = LABEL_ANCHOR_OFFSETS[current.labelIndex];
+      _worldPos.set(anchor[0], anchor[1], anchor[2]);
+      _worldPos.project(camera!);
+      const x = ((_worldPos.x + 1) / 2) * w + ox;
+      const y = (1 - (_worldPos.y + 1) / 2) * h - LABEL_ABOVE_OFFSET_PX + oy;
+      el.style.opacity = '1';
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.right = '';
+      el.style.bottom = '';
+      el.style.transform = 'translate(-50%, -100%)';
+    });
   }
 
   function animate(): void {
     if (!rafActive || !scene || !camera || !renderer) return;
     animationId = requestAnimationFrame(animate);
     const elapsed = clock.getElapsedTime();
-    updateAmbientAnimations(scene, elapsed);
-
-    const progress = getProgress();
-    const result = getBeatAtProgress(progress);
-    const aspect = container.clientWidth / container.clientHeight;
-
-    if (result) {
-      const { index, beat, t } = result;
-      const prevBeat = index > 0 ? STORY_BEATS[index - 1] : STORY_BEATS[0];
-      const prevCamera = prevBeat.camera ?? { lookAt: new THREE.Vector3(0, 2, 0), viewSize: 50 };
-      const currCamera = beat.camera ?? prevCamera;
-      if (t < LERP_SNAP_THRESHOLD) {
-        setCameraState(camera, prevCamera, aspect);
-      } else if (t >= 1 - LERP_SNAP_THRESHOLD) {
-        setCameraState(camera, currCamera, aspect);
-      } else {
-        lerpCameraState(camera, prevCamera, currCamera, t, aspect);
-      }
-      restoreMeshes(scene);
-      if (beat.dimGroups?.length) dimMeshes(scene, beat.dimGroups, 0.7, 1);
-      const handoffOpacity = beat.handoffVisible ? 0.6 * Math.min(1, t * 2) : 0;
-      updateHandoffLine(handoffOpacity);
-
-      const labels = labelsContainer.querySelectorAll('.beat-label');
-      labels.forEach((el, i) => {
-        const style = (el as HTMLElement).style;
-        style.opacity = i === index && t <= 0.85 ? '1' : '0';
-        const pos = BEAT_LABEL_POSITIONS[i];
-        if (pos) {
-          style.left = pos.left ?? '';
-          style.right = pos.right ?? '';
-          style.top = pos.top ?? '';
-          style.bottom = pos.bottom ?? '';
-          style.transform = pos.transform ?? '';
-        }
-      });
-    } else {
-      setCameraState(camera, STORY_BEATS[0].camera!, aspect);
-      restoreMeshes(scene);
-      updateHandoffLine(0);
-      labelsContainer.querySelectorAll('.beat-label').forEach((el) => {
-        (el as HTMLElement).style.opacity = '0';
-      });
-    }
-
+    updateLandingTakeoffLoop(scene!, elapsed);
+    updateAmbientAnimations(scene!, elapsed);
+    updateLabels(elapsed);
     renderer.render(scene, camera);
   }
 
-  const ctaLink = document.querySelector('.diorama-cta__link') as HTMLAnchorElement | null;
-  if (ctaLink) {
-    const storageKey = 'has-design-read-articles';
-    let nextSlug = 'start-here';
-    try {
-      const stored = localStorage.getItem(storageKey);
-      const read = stored ? JSON.parse(stored) : [];
-      const foundations = ['start-here', 'the-stack', 'deep-dive'];
-      const next = foundations.find((s) => !read.includes(s));
-      if (next) nextSlug = next;
-    } catch {
-      /* use default */
-    }
-    const isNew = nextSlug === 'start-here';
-    ctaLink.href = `/reading/${nextSlug}`;
-    ctaLink.textContent = isNew ? 'BEGIN PART 1 →' : `CONTINUE → ${nextSlug.replace(/-/g, ' ')}`;
-  }
+  const updateFrustumWithViewSize = (): void => {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (w <= 0 || h <= 0) return;
+    const a = w / h;
+    camera!.left = -VIEW_SIZE * 0.5 * a;
+    camera!.right = VIEW_SIZE * 0.5 * a;
+    camera!.top = VIEW_SIZE * 0.5;
+    camera!.bottom = -VIEW_SIZE * 0.5;
+    camera!.updateProjectionMatrix();
+  };
 
   rafActive = true;
   const ro = new ResizeObserver(() => {
     if (resizeThrottleId) return;
     resizeThrottleId = setTimeout(() => {
-      updateFrustum();
+      updateFrustumWithViewSize();
       resizeThrottleId = null;
     }, RESIZE_THROTTLE_MS);
   });
@@ -180,7 +243,7 @@ function run(): void {
   window.addEventListener('resize', () => {
     if (resizeThrottleId) return;
     resizeThrottleId = setTimeout(() => {
-      updateFrustum();
+      updateFrustumWithViewSize();
       resizeThrottleId = null;
     }, RESIZE_THROTTLE_MS);
   });
@@ -191,18 +254,19 @@ function run(): void {
       rafActive = visible;
       if (visible && scene && camera && renderer) animate();
     },
-    { threshold: 0.1, root: null }
+    { threshold: 0, root: null }
   );
   visObs.observe(container);
 
   animate();
 }
 
+export {};
+
 function initLanding(): void {
   if (window.location.pathname !== '/' && !window.location.pathname.match(/^\/?$/)) return;
-  const scrollPanel = document.getElementById('diorama-scroll-panel');
   const container = document.getElementById('diorama-container');
-  if (!scrollPanel || !container) return;
+  if (!container) return;
 
   if (window.innerWidth < MOBILE_BREAKPOINT_PX) {
     container.classList.add('diorama-mobile-fallback');
@@ -210,17 +274,22 @@ function initLanding(): void {
   }
   container.classList.remove('diorama-mobile-fallback');
   dispose();
-  requestAnimationFrame(() => run());
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => run());
+  });
 }
 
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initLanding());
-  } else {
+  function start(): void {
     initLanding();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
   }
   document.addEventListener('astro:after-swap', () => {
     dispose();
-    initLanding();
+    requestAnimationFrame(() => requestAnimationFrame(initLanding));
   });
 }

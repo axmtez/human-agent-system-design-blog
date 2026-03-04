@@ -1,21 +1,21 @@
 import * as THREE from 'three';
 
 const baseMat = new THREE.MeshStandardMaterial({
-  color: 0xd4c4a8,
+  color: 0xf5f5f5,
   roughness: 0.85,
   metalness: 0.05,
   flatShading: true,
 });
 
 const cabMat = new THREE.MeshStandardMaterial({
-  color: 0xe8d8c0,
+  color: 0xffffff,
   roughness: 0.7,
   metalness: 0.1,
   flatShading: true,
 });
 
 const roofMat = new THREE.MeshStandardMaterial({
-  color: 0xa08060,
+  color: 0x4a9eff,
   roughness: 0.85,
   metalness: 0.05,
   flatShading: true,

@@ -10,6 +10,7 @@ export { createTaxiwaysAndApron } from './taxiways';
 export { createHoldingRing } from './holding';
 export { buildComposedScene } from './composed';
 export { updateAmbientAnimations } from './ambient';
+export { updateLandingTakeoffLoop, LOOP_DURATION } from './landing-takeoff-loop';
 export {
   STORY_BEATS,
   getBeatAtProgress,

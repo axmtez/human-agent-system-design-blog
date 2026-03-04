@@ -5,8 +5,8 @@ import type { TowerGroup } from './tower';
 const PHASE_OFFSETS = [0, 0.4, 0.8, 1.2, 1.6];
 
 /**
- * Update ambient animations: beacon blink, nav pulse, holding orbit, tower glow.
- * Call each frame from rAF. ILI-418, ILI-419, ILI-420.
+ * Update ambient animations: beacon blink, nav pulse, tower glow.
+ * Call each frame from rAF.
  */
 export function updateAmbientAnimations(
   scene: THREE.Scene,
@@ -14,13 +14,7 @@ export function updateAmbientAnimations(
 ): void {
   const aircraft = scene.userData.aircraft as Record<string, AircraftGroup> | undefined;
   if (aircraft) {
-    const list = [
-      aircraft.parked,
-      aircraft.taxiing,
-      aircraft.approach,
-      aircraft.holding,
-      aircraft.enRoute,
-    ];
+    const list = [aircraft.planeA, aircraft.planeB].filter(Boolean);
     list.forEach((ac, i) => {
       if (!ac) return;
       const phase = elapsed + (PHASE_OFFSETS[i] ?? 0);
@@ -39,21 +33,6 @@ export function updateAmbientAnimations(
       setEmissive(ac.userData.tailNavMesh);
       setEmissive(ac.userData.noseNavMesh);
     });
-  }
-
-  const holding = (scene.userData as Record<string, unknown>).holdingRing as THREE.Object3D | undefined;
-  const aircraftHolding = aircraft?.holding;
-  if (holding?.userData && aircraftHolding) {
-    const center = (holding.userData as { center?: THREE.Vector3 }).center as THREE.Vector3;
-    const radius = (holding.userData as { radius?: number }).radius as number;
-    if (center && typeof radius === 'number') {
-      const angle = elapsed * 0.3;
-      aircraftHolding.position.x = center.x + Math.cos(angle) * radius;
-      aircraftHolding.position.z = center.z + Math.sin(angle) * radius;
-      aircraftHolding.position.y = center.y;
-      aircraftHolding.rotation.y = -angle + Math.PI / 2;
-      aircraftHolding.rotation.z = 0.1;
-    }
   }
 
   const tower = (scene.userData as Record<string, unknown>).tower as TowerGroup | undefined;

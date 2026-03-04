@@ -29,14 +29,14 @@ export const STORY_BEATS: StoryBeat[] = [
     end: 0.3,
     name: 'THE CONTROLLER',
     camera: { lookAt: new THREE.Vector3(5, 2.5, -5), viewSize: 28 },
-    dimGroups: ['runway', 'taxiway', 'apron', 'aircraft-parked', 'aircraft-taxiing', 'aircraft-approach', 'aircraft-holding', 'aircraft-enRoute'],
+    dimGroups: ['runway', 'taxiway', 'apron', 'aircraft-parked', 'aircraft-taxiing', 'aircraft-approach', 'aircraft-enRoute'],
   },
   {
     start: 0.3,
     end: 0.5,
     name: 'THE AIRCRAFT',
     camera: { lookAt: new THREE.Vector3(6, 1, 0), viewSize: 38 },
-    dimGroups: ['runway', 'taxiway', 'apron', 'aircraft-parked', 'aircraft-taxiing', 'aircraft-holding', 'aircraft-enRoute'],
+    dimGroups: ['runway', 'taxiway', 'apron', 'aircraft-parked', 'aircraft-taxiing', 'aircraft-enRoute'],
   },
   {
     start: 0.5,

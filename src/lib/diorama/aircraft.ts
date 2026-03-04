@@ -14,7 +14,6 @@ export const LIVERIES = {
 export interface AircraftGroup extends THREE.Group {
   userData: {
     beaconLight?: THREE.PointLight;
-    /** Nav lights: emissive-only meshes for pulse animation (ILI-440: no PointLights). */
     wingtipLeftMesh?: THREE.Mesh;
     wingtipRightMesh?: THREE.Mesh;
     tailNavMesh?: THREE.Mesh;
@@ -23,7 +22,8 @@ export interface AircraftGroup extends THREE.Group {
 }
 
 /**
- * Create low-poly aircraft. ILI-406 geometry, ILI-407 nav lights. Light refs on group.userData.
+ * One simple aircraft: fuselage, horizontal wing, vertical tail, two engines, lights.
+ * Same geometry for all roles; only position/rotation/livery differ.
  */
 export function createAircraft(config: LiveryConfig = LIVERIES.ALPHA): AircraftGroup {
   const hullColor = typeof config.hullColor === 'string' ? parseInt(config.hullColor.slice(1), 16) : 0xcccccc;
@@ -39,36 +39,44 @@ export function createAircraft(config: LiveryConfig = LIVERIES.ALPHA): AircraftG
     flatShading: true,
   });
 
-  const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.15, 4, 8), hullMat);
+  // Fuselage: octagonal tube along X (nose +X), 8 sides, no taper
+  const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 3.2, 8), hullMat);
   fuselage.rotation.z = Math.PI / 2;
   fuselage.castShadow = true;
   group.add(fuselage);
 
-  const cockpitGeom = new THREE.SphereGeometry(0.3, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2);
-  const cockpitMat = new THREE.MeshStandardMaterial({
-    color: 0xaaaaaa,
-    metalness: 0.3,
-    roughness: 0.6,
-    flatShading: true,
-  });
-  const cockpit = new THREE.Mesh(cockpitGeom, cockpitMat);
-  cockpit.position.x = 2;
-  cockpit.castShadow = true;
-  group.add(cockpit);
+  // Nose: rounded cap to close the front (hemisphere, not a hard point)
+  const noseCap = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2),
+    hullMat.clone()
+  );
+  noseCap.rotation.z = -Math.PI / 2;
+  noseCap.position.x = 1.6;
+  noseCap.castShadow = true;
+  group.add(noseCap);
 
-  const wing = new THREE.Mesh(new THREE.BoxGeometry(0.1, 5, 0.8), hullMat.clone());
-  wing.position.set(0.3, 0, 0);
-  wing.rotation.y = 0.15;
+  // Main wing: symmetric triangle in XZ — tip at nose, base at tail; same extent fore/aft so it centers from every angle
+  const wingShape = new THREE.Shape();
+  wingShape.moveTo(0.6, 0);
+  wingShape.lineTo(-0.6, 1.6);
+  wingShape.lineTo(-0.6, -1.6);
+  wingShape.closePath();
+  const wingGeom = new THREE.ExtrudeGeometry(wingShape, { depth: 0.06, bevelEnabled: false });
+  const wing = new THREE.Mesh(wingGeom, hullMat.clone());
+  wing.position.set(0.2, 0, 0);
+  wing.rotation.x = -Math.PI / 2;
   wing.castShadow = true;
   group.add(wing);
 
-  const hStab = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.0, 0.4), hullMat.clone());
-  hStab.position.set(-2, 0, 0);
-  hStab.castShadow = true;
-  group.add(hStab);
-
+  // Vertical tail (fin): right triangle in XY plane — runs with hull (base along X), flat vertical at tail, sticks up (Y)
+  const finShape = new THREE.Shape();
+  finShape.moveTo(0, 0.7);
+  finShape.lineTo(0, 0);
+  finShape.lineTo(0.25, 0);
+  finShape.closePath();
+  const finGeom = new THREE.ExtrudeGeometry(finShape, { depth: 0.06, bevelEnabled: false });
   const vStab = new THREE.Mesh(
-    new THREE.BoxGeometry(0.06, 0.4, 1.0),
+    finGeom,
     new THREE.MeshStandardMaterial({
       color: accentColor,
       roughness: 0.6,
@@ -76,58 +84,64 @@ export function createAircraft(config: LiveryConfig = LIVERIES.ALPHA): AircraftG
       flatShading: true,
     })
   );
-  vStab.position.set(-2, 0.2, 0);
+  vStab.position.set(-1.55, 0.25, 0);
+  vStab.scale.setScalar(1.1);
   vStab.castShadow = true;
   group.add(vStab);
 
+  // Two engines under wing
   const engineMat = new THREE.MeshStandardMaterial({
-    color: 0x999999,
+    color: 0x888888,
     metalness: 0.3,
     roughness: 0.5,
     flatShading: true,
   });
-  const engineGeom = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 6);
+  const engineGeom = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 6);
   const engineL = new THREE.Mesh(engineGeom, engineMat);
   engineL.rotation.z = Math.PI / 2;
-  engineL.position.set(0.3, 1, -0.3);
+  engineL.position.set(0.25, -0.2, 0.75);
   engineL.castShadow = true;
   group.add(engineL);
   const engineR = new THREE.Mesh(engineGeom, engineMat.clone());
   engineR.rotation.z = Math.PI / 2;
-  engineR.position.set(0.3, -1, -0.3);
+  engineR.position.set(0.25, -0.2, -0.75);
   engineR.castShadow = true;
   group.add(engineR);
 
-  const navSphereGeom = new THREE.SphereGeometry(0.04, 4, 4);
-  const emissiveRed = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.8 });
-  const emissiveGreen = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.8 });
-  const emissiveWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5 });
+  // Lights: small dots so they don't dominate
+  const navGeom = new THREE.SphereGeometry(0.03, 4, 4);
+  const redMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.6 });
+  const greenMat = new THREE.MeshStandardMaterial({ color: 0x00aa00, emissive: 0x00aa00, emissiveIntensity: 0.6 });
+  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcccccc, emissiveIntensity: 0.4 });
 
-  const sphereL = new THREE.Mesh(navSphereGeom, emissiveRed);
-  sphereL.position.set(0.3, 2.5, 0);
+  const sphereL = new THREE.Mesh(navGeom, redMat);
+  sphereL.position.set(0.25, 0, 0.55);
   group.add(sphereL);
   group.userData.wingtipLeftMesh = sphereL;
 
-  const sphereR = new THREE.Mesh(navSphereGeom, emissiveGreen);
-  sphereR.position.set(0.3, -2.5, 0);
+  const sphereR = new THREE.Mesh(navGeom, greenMat);
+  sphereR.position.set(0.25, 0, -0.55);
   group.add(sphereR);
   group.userData.wingtipRightMesh = sphereR;
 
-  const tailSphere = new THREE.Mesh(navSphereGeom, emissiveWhite.clone());
-  tailSphere.position.set(-2, 0.4, 0);
-  group.add(tailSphere);
-  group.userData.tailNavMesh = tailSphere;
+  const tailNav = new THREE.Mesh(navGeom, whiteMat.clone());
+  tailNav.position.set(-1.55, 0.25, 0);
+  group.add(tailNav);
+  group.userData.tailNavMesh = tailNav;
 
-  const noseSphere = new THREE.Mesh(navSphereGeom, emissiveWhite.clone());
-  noseSphere.position.set(2, 0, 0);
-  group.add(noseSphere);
-  group.userData.noseNavMesh = noseSphere;
+  const noseNav = new THREE.Mesh(navGeom, whiteMat.clone());
+  noseNav.position.set(1.6, 0, 0.1);
+  group.add(noseNav);
+  group.userData.noseNavMesh = noseNav;
 
   const beaconLight = new THREE.PointLight(0xff3333, 0.4, 5, 2);
-  beaconLight.position.set(0, 0, -0.3);
+  beaconLight.position.set(0, -0.25, 0);
   group.add(beaconLight);
-  const beaconSphere = new THREE.Mesh(navSphereGeom, new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0xff3333, emissiveIntensity: 0.6 }));
-  beaconSphere.position.set(0, 0, -0.3);
+  const beaconSphere = new THREE.Mesh(
+    navGeom,
+    new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0xff3333, emissiveIntensity: 0.5 })
+  );
+  beaconSphere.position.set(0, -0.25, 0);
   group.add(beaconSphere);
   group.userData.beaconLight = beaconLight;
 

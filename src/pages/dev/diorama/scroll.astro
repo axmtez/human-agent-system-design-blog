@@ -2,13 +2,14 @@
 if (!import.meta.env.DEV) {
   return Astro.redirect('/');
 }
+/** Beat label copy — final text for all 6 beats (ILI-444). */
 const BEAT_LABELS = [
   { title: 'THE AIRSPACE', body: 'The full system in view.' },
-  { title: 'THE CONTROLLER', body: 'Tower coordinates traffic.' },
-  { title: 'THE AIRCRAFT', body: 'Approach in progress.' },
-  { title: 'THE HANDOFF', body: 'Clear handoff from tower to pilot.' },
-  { title: 'THE GUARDRAILS', body: 'Holding pattern keeps separation.' },
-  { title: 'THIS IS HAS DESIGN', body: 'Human–agent system design.' },
+  { title: 'THE CONTROLLER', body: 'One controller orchestrates the flows.' },
+  { title: 'THE AIRCRAFT', body: 'Agents and users in the same airspace.' },
+  { title: 'THE HANDOFF', body: 'Clear handoff from system to human.' },
+  { title: 'THE GUARDRAILS', body: 'Guardrails keep everyone safe and aligned.' },
+  { title: 'THIS IS HAS DESIGN', body: 'This is human–agent system design.' },
 ];
 ---
 <!doctype html>
