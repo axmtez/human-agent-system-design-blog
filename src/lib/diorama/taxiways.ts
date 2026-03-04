@@ -101,6 +101,7 @@ export function createTaxiwaysAndApron(): THREE.Group {
   );
   apron.position.set(10, APRON_SIZE.y / 2, -6);
   apron.receiveShadow = true;
+  apron.userData = { sceneGroup: 'apron' };
   group.add(apron);
 
   const stopMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8, flatShading: true });

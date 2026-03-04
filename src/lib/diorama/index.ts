@@ -8,3 +8,5 @@ export { createTower, type TowerGroup } from './tower';
 export { createAircraft, LIVERIES, type AircraftGroup, type LiveryConfig } from './aircraft';
 export { createTaxiwaysAndApron } from './taxiways';
 export { createHoldingRing } from './holding';
+export { buildComposedScene } from './composed';
+export { updateAmbientAnimations } from './ambient';
