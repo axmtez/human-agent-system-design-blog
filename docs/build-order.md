@@ -323,3 +323,22 @@ Environment (ILI-393)
 | ILI-433 | Pause animation loop | ILI-429 |
 | ILI-434 | Shadow quality tuning | ILI-429 |
 | ILI-435 | Mobile fallback | ILI-429 |
+
+---
+
+## Road home — Status
+
+**Phase 1 (Bug fixes):** Done. ILI-440 (PointLight cull), ILI-441 (taxiway seam), ILI-443 (lerp snap).
+
+**Phase 2 (Design):** Done. ILI-442 (per-beat label positioning).
+
+**Phase 3 (Performance):** Next. Run in order:
+
+1. **ILI-430** — DevTools profile (baseline after PointLight cull: triangles, draw calls, lights).
+2. **ILI-434** — Shadow tuning (informed by profile).
+3. **ILI-432** — Throttle resize (implemented; verify).
+4. **ILI-433** — Pause loop (implemented; verify).
+5. **ILI-431** — Resource disposal (implemented; validate with 10× landing→article memory test).
+6. **ILI-435** — Mobile fallback (Option A then B if &lt;30fps).
+
+**Cancelled (replaced by build-order breakdown):** ILI-390, ILI-391, ILI-392.

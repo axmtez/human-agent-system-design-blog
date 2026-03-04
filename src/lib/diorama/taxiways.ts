@@ -40,7 +40,7 @@ function addStrip(
     surfaceMat.clone()
   );
   strip.position.copy(mid);
-  strip.position.y = TAXIWAY_HEIGHT / 2;
+  strip.position.y = 0.025 - TAXIWAY_HEIGHT / 2; /* match runway top (ILI-441) */
   strip.lookAt(end);
   strip.rotation.x = 0;
   strip.rotation.z = 0;

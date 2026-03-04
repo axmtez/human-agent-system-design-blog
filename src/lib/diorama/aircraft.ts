@@ -14,10 +14,11 @@ export const LIVERIES = {
 export interface AircraftGroup extends THREE.Group {
   userData: {
     beaconLight?: THREE.PointLight;
-    wingtipLeft?: THREE.PointLight;
-    wingtipRight?: THREE.PointLight;
-    tailBeacon?: THREE.PointLight;
-    noseLight?: THREE.PointLight;
+    /** Nav lights: emissive-only meshes for pulse animation (ILI-440: no PointLights). */
+    wingtipLeftMesh?: THREE.Mesh;
+    wingtipRightMesh?: THREE.Mesh;
+    tailNavMesh?: THREE.Mesh;
+    noseNavMesh?: THREE.Mesh;
   };
 }
 
@@ -102,34 +103,25 @@ export function createAircraft(config: LiveryConfig = LIVERIES.ALPHA): AircraftG
   const emissiveGreen = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.8 });
   const emissiveWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5 });
 
-  const wingtipL = new THREE.PointLight(0xff0000, 0.3, 3, 2);
-  wingtipL.position.set(0.3, 2.5, 0);
-  group.add(wingtipL);
   const sphereL = new THREE.Mesh(navSphereGeom, emissiveRed);
   sphereL.position.set(0.3, 2.5, 0);
   group.add(sphereL);
-  group.userData.wingtipLeft = wingtipL;
+  group.userData.wingtipLeftMesh = sphereL;
 
-  const wingtipR = new THREE.PointLight(0x00ff00, 0.3, 3, 2);
-  wingtipR.position.set(0.3, -2.5, 0);
-  group.add(wingtipR);
   const sphereR = new THREE.Mesh(navSphereGeom, emissiveGreen);
   sphereR.position.set(0.3, -2.5, 0);
   group.add(sphereR);
-  group.userData.wingtipRight = wingtipR;
+  group.userData.wingtipRightMesh = sphereR;
 
-  const tailBeacon = new THREE.PointLight(0xffffff, 0.3, 4, 2);
-  tailBeacon.position.set(-2, 0.4, 0);
-  group.add(tailBeacon);
   const tailSphere = new THREE.Mesh(navSphereGeom, emissiveWhite.clone());
   tailSphere.position.set(-2, 0.4, 0);
   group.add(tailSphere);
-  group.userData.tailBeacon = tailBeacon;
+  group.userData.tailNavMesh = tailSphere;
 
-  const noseLight = new THREE.PointLight(0xffffff, 0.2, 3, 2);
-  noseLight.position.set(2, 0, 0);
-  group.add(noseLight);
-  group.userData.noseLight = noseLight;
+  const noseSphere = new THREE.Mesh(navSphereGeom, emissiveWhite.clone());
+  noseSphere.position.set(2, 0, 0);
+  group.add(noseSphere);
+  group.userData.noseNavMesh = noseSphere;
 
   const beaconLight = new THREE.PointLight(0xff3333, 0.4, 5, 2);
   beaconLight.position.set(0, 0, -0.3);

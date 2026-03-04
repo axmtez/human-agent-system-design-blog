@@ -28,10 +28,16 @@ export function updateAmbientAnimations(
       if (beacon) {
         beacon.intensity = Math.sin(phase * 5) > 0.9 ? 0.8 : 0;
       }
-      const wingL = ac.userData.wingtipLeft;
-      const wingR = ac.userData.wingtipRight;
-      if (wingL) wingL.intensity = 0.2 + Math.sin(elapsed * 2) * 0.1;
-      if (wingR) wingR.intensity = 0.2 + Math.sin(elapsed * 2) * 0.1;
+      const pulse = 0.5 + Math.sin(elapsed * 2) * 0.15;
+      const setEmissive = (mesh: THREE.Mesh | undefined): void => {
+        if (mesh?.material && (mesh.material as THREE.MeshStandardMaterial).emissiveIntensity !== undefined) {
+          (mesh.material as THREE.MeshStandardMaterial).emissiveIntensity = pulse;
+        }
+      };
+      setEmissive(ac.userData.wingtipLeftMesh);
+      setEmissive(ac.userData.wingtipRightMesh);
+      setEmissive(ac.userData.tailNavMesh);
+      setEmissive(ac.userData.noseNavMesh);
     });
   }
 

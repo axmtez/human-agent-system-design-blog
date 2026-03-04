@@ -13,6 +13,8 @@ export { updateAmbientAnimations } from './ambient';
 export {
   STORY_BEATS,
   getBeatAtProgress,
+  LERP_SNAP_THRESHOLD,
+  BEAT_LABEL_POSITIONS,
   dimMeshes,
   restoreMeshes,
   lerpCameraState,

@@ -8,6 +8,8 @@ import {
 import {
   STORY_BEATS,
   getBeatAtProgress,
+  LERP_SNAP_THRESHOLD,
+  BEAT_LABEL_POSITIONS,
   dimMeshes,
   restoreMeshes,
   lerpCameraState,
@@ -78,7 +80,13 @@ function run(): void {
       const prevBeat = index > 0 ? STORY_BEATS[index - 1] : STORY_BEATS[0];
       const prevCamera = prevBeat.camera ?? { lookAt: new THREE.Vector3(0, 2, 0), viewSize: 50 };
       const currCamera = beat.camera ?? prevCamera;
-      lerpCameraState(camera, prevCamera, currCamera, t, aspect);
+      if (t < LERP_SNAP_THRESHOLD) {
+        setCameraState(camera, prevCamera, aspect);
+      } else if (t >= 1 - LERP_SNAP_THRESHOLD) {
+        setCameraState(camera, currCamera, aspect);
+      } else {
+        lerpCameraState(camera, prevCamera, currCamera, t, aspect);
+      }
 
       restoreMeshes(scene);
       if (beat.dimGroups?.length) dimMeshes(scene, beat.dimGroups, 0.7, 1);
@@ -93,7 +101,16 @@ function run(): void {
 
     const labels = labelsContainer.querySelectorAll('.beat-label');
     labels.forEach((el, i) => {
-      (el as HTMLElement).style.opacity = result && i === result.index && result.t <= 0.85 ? '1' : '0';
+      const style = (el as HTMLElement).style;
+      style.opacity = result && i === result.index && result.t <= 0.85 ? '1' : '0';
+      const pos = BEAT_LABEL_POSITIONS[i];
+      if (pos) {
+        style.left = pos.left ?? '';
+        style.right = pos.right ?? '';
+        style.top = pos.top ?? '';
+        style.bottom = pos.bottom ?? '';
+        style.transform = pos.transform ?? '';
+      }
     });
 
     renderer.render(scene, camera);

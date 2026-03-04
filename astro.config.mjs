@@ -5,4 +5,12 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://your-domain.com',
   integrations: [tailwind(), sitemap()],
+  vite: {
+    optimizeDeps: {
+      include: ['three'],
+    },
+    ssr: {
+      noExternal: ['three'],
+    },
+  },
 });

@@ -60,6 +60,19 @@ export const STORY_BEATS: StoryBeat[] = [
   },
 ];
 
+/** When beat-local t is below this, snap to exact "from" state to avoid lerp drift (ILI-443). */
+export const LERP_SNAP_THRESHOLD = 0.01;
+
+/** Per-beat label position (percentage-based). ILI-442. */
+export const BEAT_LABEL_POSITIONS: ReadonlyArray<{ left?: string; right?: string; top?: string; bottom?: string; transform?: string }> = [
+  { left: '2rem', bottom: '2rem' },
+  { right: '2rem', top: '50%', transform: 'translateY(-50%)' },
+  { left: '2rem', top: '50%', transform: 'translateY(-50%)' },
+  { left: '50%', bottom: '2rem', transform: 'translateX(-50%)' },
+  { right: '2rem', top: '15%' },
+  { left: '50%', top: '45%', transform: 'translate(-50%, -50%)' },
+];
+
 export function getBeatAtProgress(progress: number): { index: number; beat: StoryBeat; t: number } | null {
   for (let i = 0; i < STORY_BEATS.length; i++) {
     const beat = STORY_BEATS[i];
