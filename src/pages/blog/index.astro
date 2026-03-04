@@ -1,24 +1,18 @@
 ---
-import BlogLayout from '../../layouts/BlogLayout.astro';
-import { getCollection } from 'astro:content';
-
-const allPosts = (await getCollection('blog')).filter((p) => !p.data.draft);
-const foundations = [...allPosts]
-  .filter((p) => p.data.series === 'foundations')
-  .sort((a, b) => (a.data.seriesPart ?? 0) - (b.data.seriesPart ?? 0));
-const firstSlug = foundations[0]?.slug ?? 'sample-post';
+// /blog redirects to / (root has the Scope in the diorama slot).
 ---
-
-<BlogLayout title="HAS Design" description="Human–agent system design. A design discipline for systems where humans, autonomous agents, and infrastructure meet.">
-  <div id="landing-page" style="width: 100%; min-height: 100%;">
-    <div id="diorama-mount" style="width: 100%; height: 80vh; display: flex; align-items: center; justify-content: center;">
-      <p style="font-family: var(--font-system); font-size: var(--text-sm); color: var(--color-text-dim); letter-spacing: 0.08em; text-transform: uppercase;">DIORAMA LOADING</p>
-    </div>
-    <div style="padding: var(--space-xl) 0; max-width: 36rem;">
-      <hr class="rule" />
-      <p style="font-family: var(--font-system); font-size: var(--text-xs); color: var(--color-vector); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: var(--space-sm);">FOUNDATIONS · 6 PARTS</p>
-      <p style="font-family: var(--font-human); font-size: var(--text-base); color: var(--color-text-secondary); margin-bottom: var(--space-lg);">A 6-part series building the HAS Design framework from first principles.</p>
-      <a href={`/blog/${firstSlug}`} style="font-family: var(--font-system); font-size: var(--text-sm); color: var(--color-vector); letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;">BEGIN PART 1 →</a>
-    </div>
-  </div>
-</BlogLayout>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="refresh" content="0;url=/" />
+    <link rel="canonical" href="/" />
+    <title>Redirecting…</title>
+  </head>
+  <body>
+    <p>Redirecting to <a href="/">/</a>…</p>
+    <script>
+      window.location.replace('/');
+    </script>
+  </body>
+</html>

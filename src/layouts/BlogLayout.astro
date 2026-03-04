@@ -6,9 +6,10 @@ import { getCollection } from 'astro:content';
 interface Props {
   title: string;
   description?: string;
+  showFooter?: boolean;
 }
 
-const { title, description = '' } = Astro.props;
+const { title, description = '', showFooter = true } = Astro.props;
 const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
 const pathname = Astro.url.pathname;
 const segments = pathname.replace(/^\//, '').split('/').filter(Boolean);
@@ -54,7 +55,7 @@ function excerpt(text: string, maxLen = 80) {
     <div class="blog-shell">
       <aside class="sidebar" aria-label="Blog navigation" transition:name="sidebar" transition:persist>
         <div class="sidebar-branding">
-          <a href="/blog" class="sidebar-branding-link">
+          <a href="/" class="sidebar-branding-link">
             <span class="sidebar-branding__title">HAS DESIGN</span>
             <span class="sidebar-branding__tagline">HUMAN-AGENT-SYSTEM DESIGN</span>
           </a>
@@ -102,12 +103,14 @@ function excerpt(text: string, maxLen = 80) {
       </aside>
       <main class="content-panel" id="content-panel" transition:animate="fade">
         <slot />
-        <footer class="blog-footer">
-          <p>
-            Human–agent system design
-            · <a href="/demo" class="vector">Design demo</a>
-          </p>
-        </footer>
+        {showFooter && (
+          <footer class="blog-footer">
+            <p>
+              Human–agent system design
+              · <a href="/demo" class="vector">Design demo</a>
+            </p>
+          </footer>
+        )}
       </main>
     </div>
     <script>
