@@ -30,9 +30,9 @@ npm run check
 
 ## Deploy
 
-**Vercel** builds from GitHub. Production branch: **`main`** (confirm in Vercel → Project → Settings → Git). Static output is `dist/` (see `vercel.json`).
+**Git:** **`main` only** — default branch is `main`; open PRs against `main`. There is no `dev` branch.
 
-**`main` and `dev` can diverge** if PRs land on different branches. Before assuming they match: `git fetch origin && git rev-parse origin/main origin/dev` — same SHA means aligned.
+**Vercel:** Production branch **`main`** (Vercel → Project → Settings → Git). Static output is `dist/` (see `vercel.json`).
 
 Set **`PUBLIC_SITE_URL`** to the canonical site (e.g. `https://your.domain`) in the Vercel project environment for correct RSS, sitemap, and canonical URLs. If unset, production builds fall back to **`https://$VERCEL_URL`** when Vercel provides it.
 

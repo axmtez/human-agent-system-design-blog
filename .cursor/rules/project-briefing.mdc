@@ -31,21 +31,13 @@ The tree is intended to **match** this briefing: `articles` content collection, 
 
 ## Deployments
 
-Production deploys via **Vercel** (GitHub integration). **Production branch must be `main` in the Vercel project settings.** Merge PRs to **`main`** to ship.
+Production deploys via **Vercel** (GitHub integration). **Branch = `main` only** — set Vercel’s production branch to **`main`** and open every PR against **`main`**.
 
-## Git: `main` vs `dev` (read this before you touch anything)
+## Git (single branch)
 
-**`main` and `dev` can diverge.** Different PR targets (some merged to `main`, some to `dev`) produced **two different lines of history** with different pixels (e.g. fonts on `main` vs ILI-570/571 only on `dev`). An agent (or human) on the wrong branch will “fix” the wrong tree and make everything worse.
+**There is no long-lived `dev` git branch.** Default branch on GitHub is **`main`**. All work lands on **`main`**. Do not recreate `origin/dev`.
 
-**Before claiming branches match or before a release:**
-
-```bash
-git fetch origin && git rev-parse origin/main origin/dev
-```
-
-If the SHAs differ, **`main` and `dev` are not aligned** — merge or rebase until they match, then push both.
-
-**Do not tell the user “aligned to main” unless those two refs are identical after `fetch`.**
+*(Routes like `/dev/type` are Astro pages for local tooling — not a git branch.)*
 
 ## Tooling
 
