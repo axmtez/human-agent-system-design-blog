@@ -23,8 +23,8 @@ const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href :
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
   </head>
   <body>
-    <div class="shell">
-      <aside class="sidebar" aria-label="Site">
+    <div class="layout">
+      <aside class="layout__sidebar" aria-label="Site">
         <p class="sidebar__title">
           <a href="/">HAS Design</a>
         </p>
@@ -38,7 +38,7 @@ const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href :
           }
         </ul>
       </aside>
-      <div class="content">
+      <div class="layout__content">
         <slot />
       </div>
     </div>
