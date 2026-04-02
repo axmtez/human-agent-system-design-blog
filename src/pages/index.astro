@@ -7,6 +7,11 @@ const title = 'HAS Design — Articles';
 ---
 
 <SiteLayout title={title} description="Human–agent system design writing." articles={articles}>
+  <header class="index-hero">
+    <p class="index-hero__label">HAS Design</p>
+    <p class="index-hero__tagline">Human · Agent · System</p>
+    <hr class="index-hero__rule" />
+  </header>
   <ul class="index-list">
     {
       articles.map((a) => (

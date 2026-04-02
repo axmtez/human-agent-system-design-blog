@@ -7,10 +7,24 @@ interface Props {
 }
 
 const { articles, currentPath = '' } = Astro.props;
+
+function normalizePath(p: string): string {
+  const s = p.replace(/\/$/, '');
+  return s === '' ? '/' : s;
+}
+
+const path = normalizePath(currentPath);
+const isHome = path === '/';
 ---
 
 <nav class="sidebar" aria-label="Site navigation">
-  <a class="sidebar__site-name" href="/">HAS Design</a>
+  <a
+    class:list={['sidebar__site-name', { 'sidebar__site-name--active': isHome }]}
+    href="/"
+    aria-current={isHome ? 'page' : undefined}
+  >
+    HAS Design
+  </a>
 
   <hr class="sidebar__rule" />
 
@@ -19,7 +33,7 @@ const { articles, currentPath = '' } = Astro.props;
     {
       articles.map((a) => {
         const href = `/${articleSlug(a.id)}`;
-        const isActive = currentPath === href;
+        const isActive = path === normalizePath(href);
         return (
           <li>
             <a
@@ -56,6 +70,10 @@ const { articles, currentPath = '' } = Astro.props;
     color: var(--color-text-primary);
   }
 
+  .sidebar__site-name--active {
+    color: var(--color-text-primary);
+  }
+
   .sidebar__rule {
     height: 0;
     border: none;
@@ -80,11 +98,15 @@ const { articles, currentPath = '' } = Astro.props;
 
   .sidebar__link {
     display: block;
-    padding: var(--space-1) 0;
+    padding: var(--space-2) 0;
+    padding-left: var(--space-3);
+    margin-left: calc(-1 * var(--space-3));
+    border-left: 2px solid transparent;
     font-family: var(--font-prose);
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
     text-decoration: none;
+    line-height: var(--leading-tight);
   }
 
   .sidebar__link:hover {
@@ -93,5 +115,7 @@ const { articles, currentPath = '' } = Astro.props;
 
   .sidebar__link--active {
     color: var(--color-text-primary);
+    border-left-color: var(--color-accent);
+    font-weight: var(--weight-medium);
   }
 </style>
