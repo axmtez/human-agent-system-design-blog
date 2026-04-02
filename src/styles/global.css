@@ -5,21 +5,20 @@
 @import './base.css';
 @import './prose.css';
 
-.shell {
+.layout {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   min-height: 100vh;
 }
 
-.sidebar {
+.layout__sidebar {
   position: sticky;
   top: 0;
-  align-self: start;
-  max-height: 100vh;
+  height: 100vh;
   overflow-y: auto;
-  padding: var(--sidebar-padding) var(--space-4);
   background: var(--color-surface);
-  border-right: 1px solid var(--color-rule);
+  border-right: 1px solid var(--color-border);
+  padding: var(--sidebar-padding);
 }
 
 .sidebar__title {
@@ -62,7 +61,8 @@
   text-decoration: none;
 }
 
-.content {
+.layout__content {
+  overflow-y: auto;
   padding: var(--content-padding-y) var(--content-padding-x);
 }
 
