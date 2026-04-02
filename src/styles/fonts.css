@@ -1,11 +1,5 @@
-/* Bundled WOFF2 via Fontsource — shipped with the site, no Google CDN. */
-@import '@fontsource/source-serif-4/latin-400.css';
-@import '@fontsource/source-serif-4/latin-600.css';
-@import '@fontsource/source-serif-4/latin-400-italic.css';
-@import '@fontsource/jetbrains-mono/latin-400.css';
-@import '@fontsource/jetbrains-mono/latin-500.css';
-
+/* Self-hosted WOFF2 in public/fonts/ — ILI-561. Until then: system stacks only (no CDN). */
 :root {
-  --font-prose: 'Source Serif 4', ui-serif, Georgia, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-prose: ui-serif, Georgia, 'Times New Roman', Times, serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
 }
