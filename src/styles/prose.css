@@ -1,51 +1,97 @@
+/* ------------------------------------------------
+   .prose — article content container
+   Applied to <article class="prose"> in [slug].astro
+   ------------------------------------------------ */
+
 .prose {
   max-width: var(--measure);
   color: var(--color-text-primary);
 }
 
-.prose > * + * {
-  margin-top: var(--space-5);
-}
-
-.prose h1 {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-2xl);
-  font-weight: 600;
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
-}
-
-.prose h2 {
-  margin: var(--space-8) 0 var(--space-3);
-  font-size: var(--text-xl);
-  font-weight: 600;
-  line-height: var(--leading-tight);
-}
-
-.prose h3 {
-  margin: var(--space-6) 0 var(--space-2);
-  font-size: var(--text-lg);
-  font-weight: 600;
-}
+/* --- Paragraphs --- */
 
 .prose p {
   margin: 0;
 }
 
-.prose ul,
-.prose ol {
+.prose p + p {
+  margin-top: var(--space-6);
+}
+
+/* --- Headings --- */
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-prose);
+  line-height: var(--leading-tight);
+}
+
+.prose h1 {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--space-8);
+}
+
+.prose h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  margin: var(--space-16) 0 var(--space-4);
+}
+
+.prose h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  margin: var(--space-12) 0 var(--space-3);
+}
+
+.prose h4 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  margin: var(--space-8) 0 var(--space-2);
+}
+
+/* --- Links --- */
+
+.prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(74, 158, 255, 0.4);
+}
+
+.prose a:hover {
+  color: var(--color-accent-hover);
+  text-decoration-color: var(--color-accent-hover);
+}
+
+/* --- Blockquote --- */
+
+.prose blockquote {
+  margin: var(--space-5) 0;
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.prose blockquote p {
   margin: 0;
-  padding-left: var(--space-6);
 }
 
-.prose li + li {
-  margin-top: var(--space-2);
-}
+/* --- Inline code --- */
 
-.prose code {
+.prose :not(pre) > code {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: 0.875em;
+  background: var(--color-code-bg);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
 }
+
+/* --- Code blocks --- */
 
 .prose pre {
   margin: var(--space-5) 0;
@@ -56,15 +102,14 @@
 }
 
 .prose pre code {
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
+  background: none;
+  padding: 0;
+  border-radius: 0;
 }
 
-.prose blockquote {
-  margin: var(--space-5) 0;
-  padding-left: var(--space-4);
-  border-left: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-}
+/* --- Horizontal rule --- */
 
 .prose hr {
   border: none;
@@ -72,6 +117,31 @@
   margin: var(--space-6) 0;
 }
 
+/* --- Lists --- */
+
+.prose ul,
+.prose ol {
+  margin: var(--space-6) 0;
+  padding-left: var(--space-6);
+}
+
+.prose li + li {
+  margin-top: var(--space-2);
+}
+
+.prose li > ul,
+.prose li > ol {
+  margin-top: var(--space-1);
+  margin-bottom: 0;
+}
+
+/* --- Strong / em --- */
+
 .prose strong {
-  font-weight: 600;
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+}
+
+.prose em {
+  font-style: italic;
 }

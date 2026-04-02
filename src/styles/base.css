@@ -6,6 +6,8 @@
 
 html {
   min-width: 1280px;
+  font-size: 18px;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -14,8 +16,20 @@ body {
   background: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-prose);
-  font-size: var(--text-base);
-  line-height: var(--leading-body);
+  line-height: var(--leading-normal);
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 ::selection {
