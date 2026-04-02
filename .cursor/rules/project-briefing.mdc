@@ -1,0 +1,22 @@
+---
+description: HAS Design Blog — Linear briefing, deploys, tooling (no mandatory Docker)
+alwaysApply: true
+---
+
+# Project source of truth
+
+Product and architecture for this repo are defined in Linear:
+
+**[CLAUDE.md — HAS Design Blog Agent Briefing](https://linear.app/iliketobuild/document/claudemd-has-design-blog-agent-briefing-5f16dbea3f75)**
+
+Follow that document for what to build, what to remove, routes, content, CSS architecture, and constraints. Work the **HAS-D Blog** backlog in dependency order (starting with **ILI-561**) and satisfy each issue’s **Definition of Done** before marking it complete.
+
+## Deployments
+
+Production deploys via **Vercel** (GitHub integration). Treat **`main`** as the production branch: merge PRs to **`main`** to ship.
+
+## Tooling
+
+Run **`npm`**, **Node**, and **Astro** (`npm run dev`, `npm run build`, `npm run check`, `npm install`) in whatever environment works for the task (local shell, CI, agent sandbox). **Docker Compose is optional** for local dev if `docker-compose.yml` exists — it is **not** required by project policy.
+
+When implementing, **execute changes in the repo**; do not offload work to the user with checklists unless they explicitly want guidance only.
