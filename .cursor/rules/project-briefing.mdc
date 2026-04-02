@@ -27,11 +27,25 @@ If repo files or `docs/` disagree with the above, **the Linear briefing wins**; 
 
 ## Repo baseline (implementation)
 
-The tree is intended to **match** this briefing: `articles` content collection, tokenized CSS under `src/styles/`, two-column `SiteLayout`, no Tailwind/Three/diorama, `/dev/type` and `/dev/prose` omitted from **production** builds. Open issues (e.g. **ILI-561** self-hosted fonts) **refine** this baseline—do not reintroduce the canceled stack.
+The tree is intended to **match** this briefing: `articles` content collection, tokenized CSS under `src/styles/`, two-column shell, self-hosted fonts under `public/fonts/`, no Tailwind/Three/diorama, `/dev/type` and `/dev/prose` omitted from **production** builds. Future Linear issues **refine** this baseline—do not reintroduce the canceled stack.
 
 ## Deployments
 
-Production deploys via **Vercel** (GitHub integration). Treat **`main`** as the production branch: merge PRs to **`main`** to ship.
+Production deploys via **Vercel** (GitHub integration). **Production branch must be `main` in the Vercel project settings.** Merge PRs to **`main`** to ship.
+
+## Git: `main` vs `dev` (read this before you touch anything)
+
+**`main` and `dev` can diverge.** Different PR targets (some merged to `main`, some to `dev`) produced **two different lines of history** with different pixels (e.g. fonts on `main` vs ILI-570/571 only on `dev`). An agent (or human) on the wrong branch will “fix” the wrong tree and make everything worse.
+
+**Before claiming branches match or before a release:**
+
+```bash
+git fetch origin && git rev-parse origin/main origin/dev
+```
+
+If the SHAs differ, **`main` and `dev` are not aligned** — merge or rebase until they match, then push both.
+
+**Do not tell the user “aligned to main” unless those two refs are identical after `fetch`.**
 
 ## Tooling
 
