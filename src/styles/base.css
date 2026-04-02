@@ -6,6 +6,7 @@
 
 html {
   min-width: 1280px;
+  font-size: 18px;
 }
 
 body {
@@ -14,8 +15,7 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-prose);
-  font-size: var(--text-base);
-  line-height: var(--leading-body);
+  line-height: var(--leading-normal);
 }
 
 a {
