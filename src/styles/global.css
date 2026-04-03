@@ -4,6 +4,7 @@
 @import './typography.css';
 @import './base.css';
 @import './prose.css';
+@import './kojima.css';
 
 .shell {
   display: grid;
