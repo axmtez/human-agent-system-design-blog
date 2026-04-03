@@ -9,21 +9,20 @@ interface Props {
 const { articles, currentPath = '' } = Astro.props;
 ---
 
-<nav class="sidebar" aria-label="Site navigation">
-  <a class="sidebar__site-name" href="/">HAS Design</a>
-
-  <hr class="sidebar__rule" />
-
-  <p class="sidebar__label">Articles</p>
-  <ul class="sidebar__list">
+<nav class="codec-panel" aria-label="Site navigation">
+  <div class="codec-panel__freq sys">FREQ ░░ 140.85</div>
+  <a href="/" class="codec-panel__site sys">HAS-DESIGN</a>
+  <hr class="tx-rule codec-panel__rule" />
+  <div class="codec-panel__label sys">Transmissions</div>
+  <ul class="codec-panel__list">
     {
       articles.map((a) => {
         const href = `/${articleSlug(a.id)}`;
         const isActive = currentPath === href;
         return (
-          <li>
+          <li class:list={[{ 'active-marker': isActive }]}>
             <a
-              class:list={['sidebar__link', { 'sidebar__link--active': isActive }]}
+              class:list={['codec-panel__link', { 'codec-panel__link--active': isActive }]}
               href={href}
               aria-current={isActive ? 'page' : undefined}
             >
@@ -34,51 +33,49 @@ const { articles, currentPath = '' } = Astro.props;
       })
     }
   </ul>
+  <hr class="tx-rule codec-panel__rule" />
+  <div class="codec-panel__operator sys">OPERATOR // CHAD B</div>
 </nav>
 
 <style>
-  .sidebar {
+  .codec-panel {
     display: flex;
     flex-direction: column;
   }
 
-  .sidebar__site-name {
+  .codec-panel__freq {
+    margin-bottom: var(--space-1);
+  }
+
+  .codec-panel__site {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
-    color: var(--color-text-muted);
+    color: var(--color-text-primary);
     text-decoration: none;
   }
 
-  .sidebar__site-name:hover {
-    color: var(--color-text-primary);
+  .codec-panel__site:hover {
+    color: var(--color-accent);
   }
 
-  .sidebar__rule {
-    height: 0;
-    border: none;
-    border-top: 1px solid var(--color-border);
+  .codec-panel__rule {
     margin: var(--space-4) 0;
   }
 
-  .sidebar__label {
-    margin: 0 0 var(--space-2);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-text-muted);
+  .codec-panel__label {
+    margin-bottom: var(--space-2);
   }
 
-  .sidebar__list {
+  .codec-panel__list {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .sidebar__link {
+  .codec-panel__link {
     display: block;
     padding: var(--space-1) 0;
     font-family: var(--font-prose);
@@ -87,11 +84,15 @@ const { articles, currentPath = '' } = Astro.props;
     text-decoration: none;
   }
 
-  .sidebar__link:hover {
+  .codec-panel__link:hover {
     color: var(--color-text-primary);
   }
 
-  .sidebar__link--active {
+  .codec-panel__link--active {
     color: var(--color-text-primary);
+  }
+
+  .codec-panel__operator {
+    margin-top: auto;
   }
 </style>
