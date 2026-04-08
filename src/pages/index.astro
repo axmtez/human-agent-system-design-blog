@@ -1,76 +1,171 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
-import { articleSlug, getSortedArticles } from '../lib/articles.ts';
+import { getCollection } from 'astro:content';
 
-const articles = await getSortedArticles();
-const title = 'HAS-DESIGN';
+const articles = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-function formatDate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}.${m}.${d}`;
+function formatDate(d: Date): string {
+  return d.toISOString().slice(0, 10).replace(/-/g, '.');
 }
 ---
 
-<SiteLayout title={title} description="Human–agent system design writing.">
-  <h1 class="page-title">Human · Agent · System</h1>
-  <ul class="article-list">
-    {
-      articles.map((a) => (
-        <li class="article-list__item">
-          <a href={`/${articleSlug(a.id)}`} class="article-list__title">
-            {a.data.title}
-          </a>
-          <time class="article-list__date" datetime={a.data.date.toISOString()}>
-            {formatDate(a.data.date)}
-          </time>
+<SiteLayout title="HAS-DESIGN" description="Human–agent system design writing.">
+  <!-- Hit zone — covers left margin when reading -->
+  <div class="hit-zone" id="hit-zone"></div>
+
+  <!-- LIST LAYER -->
+  <div class="layer z-front" id="layer-list">
+    <ul class="alist">
+      {articles.map(article => (
+        <li
+          class="ali"
+          data-slug={article.id.replace(/\.md$/i, '')}
+          data-title={article.data.title}
+          data-date={formatDate(article.data.date)}
+          data-description={article.data.description || ''}
+        >
+          <span class="alt">{article.data.title}</span>
+          <span class="ald">{formatDate(article.data.date)}</span>
         </li>
-      ))
-    }
-  </ul>
+      ))}
+    </ul>
+  </div>
+
+  <!-- ARTICLE LAYER (empty shell, filled by JS) -->
+  <div class="layer z-gone" id="layer-article">
+    <h1 class="art-title" id="art-title"></h1>
+    <div class="art-meta">
+      <span id="art-date"></span>
+      <span id="art-read"></span>
+    </div>
+    <p class="art-lede" id="art-lede"></p>
+    <div class="art-body" id="art-body"></div>
+  </div>
 </SiteLayout>
 
 <style>
-  .page-title {
-    font-family: var(--font-prose);
-    font-size: var(--text-lg);
-    font-weight: 400;
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-8);
+  /* ── Layer system ── */
+  .layer {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    transition: transform 0.5s ease, filter 0.5s ease, opacity 0.5s ease;
+    will-change: transform, filter, opacity;
+    padding: var(--space-12) var(--space-8);
   }
 
-  .article-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .z-front {
+    transform: scale(1) translateZ(0);
+    filter: blur(0);
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+  }
+
+  .z-back {
+    transform: scale(0.92) translateZ(0);
+    filter: blur(4px);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .z-gone {
+    transform: scale(0.85) translateZ(0);
+    filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .z-ef {
+    transform: scale(1.1) translateZ(0);
+    filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Hit zone ── */
+  .hit-zone {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--space-16);
+    height: 100vh;
+    z-index: 10;
+    cursor: pointer;
+  }
+
+  .hit-zone.on {
+    display: block;
+  }
+
+  /* ── Article list ── */
+  .alist {
+    max-width: var(--measure-prose);
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--space-4);
   }
 
-  .article-list__item {
+  .ali {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: var(--space-4);
+    cursor: pointer;
   }
 
-  .article-list__title {
+  .alt {
     font-family: var(--font-prose);
     font-size: var(--text-base);
     color: var(--color-text-primary);
-    text-decoration: none;
   }
 
-  .article-list__title:hover {
+  .ali:hover .alt {
     color: var(--color-accent);
   }
 
-  .article-list__date {
+  .ald {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--color-text-secondary);
     flex-shrink: 0;
+  }
+
+  /* ── Article layer ── */
+  .art-title {
+    font-family: var(--font-prose);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-4);
+    max-width: var(--measure-prose);
+  }
+
+  .art-meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .art-lede {
+    font-family: var(--font-prose);
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-8);
+    max-width: var(--measure-prose);
+  }
+
+  .art-body {
+    max-width: var(--measure-prose);
   }
 </style>
