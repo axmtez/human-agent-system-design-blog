@@ -34,9 +34,13 @@
     if (footer) footer.classList.add('art-footer--enter');
   }
 
+  /** ~72ms aligns with nav stagger; cleanup strips entrance classes after fades finish (no stray layers). */
   function scheduleArticleEntrance() {
     setTimeout(function () {
       runArticleEntrance();
+      setTimeout(function () {
+        clearArticleEntrance();
+      }, 950);
     }, 72);
   }
 
