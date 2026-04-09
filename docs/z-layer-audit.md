@@ -12,6 +12,7 @@ Parent: [ILI-612 — Depth Navigation Spec Gaps & Build Plan](https://linear.app
 | `z-back` | `translateX(-12vw) scale(0.8)` | `blur(6px)` | `0.28` | `20` | `none` | **Recessed left** — list visible behind article as sidebar ghost |
 | `z-gone` | `perspective(1200px) translateZ(-120px) scale(0.92)` | `blur(14px)` | `0` | `1` | `none` | **Hidden deep** — off-stage, invisible, behind everything |
 | `z-ef` | `perspective(1200px) translateZ(72px) scale(1.04)` | `blur(12px)` | `0` | `10` | `none` | **Exit-forward** — zooms toward camera and fades out (forward nav exit) |
+| `z-eb` | `perspective(1200px) translateZ(-180px) scale(0.88)` | `blur(12px)` | `0` | `10` | `none` | **Exit-backward** — recedes deeper than rest and fades out (backward nav exit) |
 | `z-crisp` | `translateX(-12vw) scale(0.8)` | `blur(0)` | `1` | `20` | `none` | **Recessed but readable** — list during hit-zone hover (same position as `z-back`, but sharp) |
 | `z-dim` | `none` | `blur(14px)` | `0.25` | `10` | `none` | **Defocused in-place** — article dims when user hovers a list item in hit-zone |
 
@@ -22,6 +23,7 @@ Parent: [ILI-612 — Depth Navigation Spec Gaps & Build Plan](https://linear.app
 | `p-c` (center/active) | `z-front` | Direct match |
 | `p-b` (behind/deep) | `z-back` / `z-gone` | `z-back` = visible-behind; `z-gone` = fully hidden behind. Spec has one state, impl splits into two |
 | `p-f` (front/past camera) | `z-ef` | Used only as exit animation, not a rest state |
+| (reverse of `p-f`) | `z-eb` | Exit-backward: recedes deeper than `z-gone` rest position |
 
 ---
 
@@ -60,13 +62,14 @@ Time    layer-list          layer-article         Action
         │                   │
         ├─ navigate('list') called ───────────────┤
         │                   │
-  +0    z-back              z-gone                nav.js: backward nav → old layer gets z-gone
-        │                   │                     (article shrinks deep + blurs + fades)
+  +0    z-back              z-eb                  nav.js: backward nav → old layer gets z-eb
+        │                   │                     (article recedes deeper + blurs + fades)
         │                   │
- +60    z-front             z-gone                nav.js stagger: list snaps to front
+ +60    z-front             z-eb                  nav.js stagger: list returns to front
+        │                   │                     (list transitions from z-back → z-front)
         │                   │
 +460    z-front             z-gone                nav.js cleanup: article snapped to rest (z-gone)
-        │                   │                     already correct, no visual change
+        │                   │                     transition: none → reflow → transition: ''
 ```
 
 ### Article Swap (reading → different article)
@@ -117,12 +120,12 @@ The spec has a single `p-b` ("behind") state. The implementation splits this int
 
 This split exists to support the **hit-zone sidebar** interaction where the list peeks from the left while reading. The spec doesn't account for this — it would place all behind-layers at the same `p-b` state.
 
-### Gap 3: Backward navigation uses `z-gone`, not a reverse of `z-ef`
+### Gap 3: ~~Backward navigation uses `z-gone`, not a reverse of `z-ef`~~ RESOLVED (ILI-615)
 
 Forward exit: old layer → `z-ef` (zoom toward camera, blur, fade).  
-Backward exit: old layer → `z-gone` (shrink deep, blur, fade).
+Backward exit: old layer → `z-eb` (recede deeper, blur, fade).
 
-This is **asymmetric by design** — forward feels like passing through, backward feels like receding. The spec's POSMAP doesn't distinguish directional exit animations; it only defines rest positions.
+Backward now uses a dedicated `z-eb` class that mirrors `z-ef` in the opposite direction. Browser back/forward (popstate) also animates instead of instant-swapping.
 
 ### Gap 4: `z-crisp` and `z-dim` have no spec equivalent
 
