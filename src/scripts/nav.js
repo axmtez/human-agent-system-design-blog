@@ -1,6 +1,6 @@
 (function () {
   var SEQ = { list: 0, reading: 1, about: 2, contact: 3 };
-  var ZC  = ['z-front', 'z-back', 'z-crisp', 'z-dim', 'z-gone', 'z-ef'];
+  var ZC  = ['z-front', 'z-back', 'z-crisp', 'z-dim', 'z-gone', 'z-ef', 'z-eb'];
 
   var L   = document.getElementById('layer-list');
   var A   = document.getElementById('layer-article');
@@ -58,6 +58,42 @@
     syncHeaderScrollState();
   }
 
+  // Snap old layer to its rest class once the exit transition ends.
+  // Uses transitionend for frame-accurate timing with a safety fallback.
+  function snapAfterTransition(el, next) {
+    if (!el) { busy = false; return; }
+    var done = false;
+
+    function snap() {
+      var rest = restClass(el, next);
+      if (el.classList.contains(rest)) {
+        busy = false;
+        return;
+      }
+      el.style.transition = 'none';
+      zz(el, rest);
+      void el.offsetHeight;           // force reflow
+      el.style.transition = '';
+      busy = false;
+    }
+
+    function onEnd(e) {
+      if (done || e.target !== el || e.propertyName !== 'transform') return;
+      done = true;
+      el.removeEventListener('transitionend', onEnd);
+      snap();
+    }
+
+    el.addEventListener('transitionend', onEnd);
+    // Safety fallback if transitionend never fires (reduced-motion, display:none)
+    setTimeout(function () {
+      if (done) return;
+      done = true;
+      el.removeEventListener('transitionend', onEnd);
+      snap();
+    }, 500);
+  }
+
   function navigate(next, pushUrl) {
     if (next === state || busy) return;
     busy = true;
@@ -66,13 +102,13 @@
     var entering = elFor(next);
 
     // Step 1: exit animation on old layer
-    // List → article: list must RECEDE (z-back: left + blur), not z-ef (positive Z = “toward camera”).
-    // Article → list: article fades via z-gone; #layer-article uses flat opacity-only z-gone in CSS.
+    // List → article: list must RECEDE (z-back), not z-ef (positive Z toward camera).
+    // Other forward exits: z-ef. Backward exits: z-eb (see docs/z-layer-audit.md).
     if (old) {
       if (fwd && next === 'reading' && old === L) {
         zz(old, 'z-back');
       } else {
-        zz(old, fwd ? 'z-ef' : 'z-gone');
+        zz(old, fwd ? 'z-ef' : 'z-eb');
       }
     }
 
@@ -91,19 +127,8 @@
       syncHeaderScrollState();
     }, 60);
 
-    // Step 3: settle old layer to rest only if not already there (avoids transition:none snap)
-    setTimeout(function () {
-      if (old) {
-        var rest = restClass(old, next);
-        if (!old.classList.contains(rest)) {
-          old.style.transition = 'none';
-          zz(old, rest);
-          void old.offsetHeight;
-          old.style.transition = '';
-        }
-      }
-      busy = false;
-    }, 460);
+    // Step 3: snap old layer to rest when its exit transition completes
+    snapAfterTransition(old, next);
   }
 
   // Nav links
@@ -149,19 +174,36 @@
     el.addEventListener('scroll', onLayerScroll, { passive: true });
   });
 
-  // Browser back/forward
+  // Browser back/forward — animate instead of instant swap
   window.addEventListener('popstate', function (e) {
     if (busy) return;
-    if (e.state && e.state.view) {
-      busy = true;
-      applyState(e.state.view);
-      state = e.state.view;
-      setTimeout(function () { busy = false; }, 480);
-    } else {
-      var detected = detectFromUrl();
-      applyState(detected);
-      state = detected;
+    var next = (e.state && e.state.view) ? e.state.view : detectFromUrl();
+    if (next === state) return;
+    busy = true;
+    var fwd = SEQ[next] > SEQ[state];
+    var old = elFor(state);
+    var entering = elFor(next);
+
+    if (old) {
+      if (fwd && next === 'reading' && old === L) {
+        zz(old, 'z-back');
+      } else {
+        zz(old, fwd ? 'z-ef' : 'z-eb');
+      }
     }
+
+    setTimeout(function () {
+      if (entering) zz(entering, 'z-front');
+      ALL.forEach(function (el) {
+        if (el !== old && el !== entering) zz(el, restClass(el, next));
+      });
+      hz.classList.toggle('on', next === 'reading');
+      updateNavDots(navKey(next));
+      state = next;
+      syncHeaderScrollState();
+    }, 60);
+
+    snapAfterTransition(old, next);
   });
 
   function detectFromUrl() {
