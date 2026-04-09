@@ -66,7 +66,15 @@
     var entering = elFor(next);
 
     // Step 1: exit animation on old layer
-    if (old) zz(old, fwd ? 'z-ef' : 'z-gone');
+    // List → article: list must RECEDE (z-back: left + blur), not z-ef (positive Z = “toward camera”).
+    // Article → list: article fades via z-gone; #layer-article uses flat opacity-only z-gone in CSS.
+    if (old) {
+      if (fwd && next === 'reading' && old === L) {
+        zz(old, 'z-back');
+      } else {
+        zz(old, fwd ? 'z-ef' : 'z-gone');
+      }
+    }
 
     var url = pushUrl || urlFor(next);
     history.pushState({ view: next }, '', url);
@@ -83,14 +91,16 @@
       syncHeaderScrollState();
     }, 60);
 
-    // Step 3: after transition completes, snap old layer to rest (no animation)
+    // Step 3: settle old layer to rest only if not already there (avoids transition:none snap)
     setTimeout(function () {
       if (old) {
-        old.style.transition = 'none';
-        zz(old, restClass(old, next));
-        // Force reflow, then re-enable transitions
-        void old.offsetHeight;
-        old.style.transition = '';
+        var rest = restClass(old, next);
+        if (!old.classList.contains(rest)) {
+          old.style.transition = 'none';
+          zz(old, rest);
+          void old.offsetHeight;
+          old.style.transition = '';
+        }
       }
       busy = false;
     }, 460);
