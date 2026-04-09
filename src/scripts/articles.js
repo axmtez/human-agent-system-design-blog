@@ -9,7 +9,38 @@
   var items = Array.prototype.slice.call(document.querySelectorAll('.ali'));
   var swapping = false;
 
-  // ── LOAD ARTICLE CONTENT ──
+  /** Clear entrance animation classes before new content or re-run. */
+  function clearArticleEntrance() {
+    var header = document.querySelector('#layer-article .art-header');
+    var body = document.getElementById('art-body');
+    var footer = document.querySelector('#layer-article .art-footer');
+    if (header) header.classList.remove('art-header--enter');
+    if (body) body.classList.remove('prose--enter');
+    if (footer) footer.classList.remove('art-footer--enter');
+  }
+
+  /**
+   * Re-trigger CSS staggered entrance on header, prose, footer.
+   * Call after layer is z-front (small delay aligns with nav stagger).
+   */
+  function runArticleEntrance() {
+    var header = document.querySelector('#layer-article .art-header');
+    var body = document.getElementById('art-body');
+    var footer = document.querySelector('#layer-article .art-footer');
+    clearArticleEntrance();
+    if (body) void body.offsetWidth;
+    if (header) header.classList.add('art-header--enter');
+    if (body) body.classList.add('prose--enter');
+    if (footer) footer.classList.add('art-footer--enter');
+  }
+
+  function scheduleArticleEntrance() {
+    setTimeout(function () {
+      runArticleEntrance();
+    }, 72);
+  }
+
+  // ── LOAD ARTICLE CONTENT (fetch completes before caller navigates / reveals) ──
   function loadArticle(item) {
     var slug  = item.dataset.slug;
     var title = item.dataset.title;
@@ -22,14 +53,22 @@
     A.scrollTop = 0;
 
     var body = document.getElementById('art-body');
+    clearArticleEntrance();
     body.innerHTML = '';
 
-    fetch('/' + slug + '/')
-      .then(function (r) { return r.text(); })
+    return fetch('/' + slug + '/')
+      .then(function (r) {
+        if (!r.ok) throw new Error('fetch failed');
+        return r.text();
+      })
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var prose = doc.querySelector('.prose');
         if (prose) body.innerHTML = prose.innerHTML;
+      })
+      .catch(function () {
+        body.innerHTML =
+          '<p class="art-load-err">Could not load this transmission.</p>';
       });
   }
 
@@ -39,21 +78,26 @@
     var slug = item.dataset.slug;
 
     if (nav.getState() === 'reading') {
-      // Article-to-article swap: current article zooms out, new one zooms in
       swapping = true;
       clearHi();
       nav.zz(L, 'z-back');
       nav.zz(A, 'z-gone');
       setTimeout(function () {
-        loadArticle(item);
-        nav.zz(A, 'z-front');
-        if (nav.syncHeaderScrollState) nav.syncHeaderScrollState();
-        history.pushState({ view: 'reading' }, '', '/' + slug);
-        setTimeout(function () { swapping = false; }, 480);
+        loadArticle(item).then(function () {
+          nav.zz(A, 'z-front');
+          if (nav.syncHeaderScrollState) nav.syncHeaderScrollState();
+          history.pushState({ view: 'reading' }, '', '/' + slug);
+          scheduleArticleEntrance();
+          setTimeout(function () {
+            swapping = false;
+          }, 480);
+        });
       }, 300);
     } else {
-      loadArticle(item);
-      nav.navigate('reading', '/' + slug);
+      loadArticle(item).then(function () {
+        nav.navigate('reading', '/' + slug);
+        scheduleArticleEntrance();
+      });
     }
   }
 
