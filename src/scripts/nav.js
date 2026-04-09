@@ -1,6 +1,6 @@
 (function () {
   var SEQ = { list: 0, reading: 1, about: 2, contact: 3 };
-  var ZC  = ['z-front', 'z-back', 'z-crisp', 'z-dim', 'z-gone', 'z-ef'];
+  var ZC  = ['z-front', 'z-back', 'z-crisp', 'z-dim', 'z-gone', 'z-ef', 'z-eb'];
 
   var L   = document.getElementById('layer-list');
   var A   = document.getElementById('layer-article');
@@ -66,7 +66,7 @@
     var entering = elFor(next);
 
     // Step 1: exit animation on old layer
-    if (old) zz(old, fwd ? 'z-ef' : 'z-gone');
+    if (old) zz(old, fwd ? 'z-ef' : 'z-eb');
 
     var url = pushUrl || urlFor(next);
     history.pushState({ view: next }, '', url);
@@ -139,19 +139,39 @@
     el.addEventListener('scroll', onLayerScroll, { passive: true });
   });
 
-  // Browser back/forward
+  // Browser back/forward — animate instead of instant swap
   window.addEventListener('popstate', function (e) {
     if (busy) return;
-    if (e.state && e.state.view) {
-      busy = true;
-      applyState(e.state.view);
-      state = e.state.view;
-      setTimeout(function () { busy = false; }, 480);
-    } else {
-      var detected = detectFromUrl();
-      applyState(detected);
-      state = detected;
-    }
+    var next = (e.state && e.state.view) ? e.state.view : detectFromUrl();
+    if (next === state) return;
+    // Use navigate without pushState (popstate already changed the URL)
+    busy = true;
+    var fwd = SEQ[next] > SEQ[state];
+    var old = elFor(state);
+    var entering = elFor(next);
+
+    if (old) zz(old, fwd ? 'z-ef' : 'z-eb');
+
+    setTimeout(function () {
+      if (entering) zz(entering, 'z-front');
+      ALL.forEach(function (el) {
+        if (el !== old && el !== entering) zz(el, restClass(el, next));
+      });
+      hz.classList.toggle('on', next === 'reading');
+      updateNavDots(navKey(next));
+      state = next;
+      syncHeaderScrollState();
+    }, 60);
+
+    setTimeout(function () {
+      if (old) {
+        old.style.transition = 'none';
+        zz(old, restClass(old, next));
+        void old.offsetHeight;
+        old.style.transition = '';
+      }
+      busy = false;
+    }, 460);
   });
 
   function detectFromUrl() {
